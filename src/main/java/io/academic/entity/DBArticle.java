@@ -35,6 +35,10 @@ public class DBArticle {
     @Column
     private String dc;
 
+    public DBArticle() {
+
+    }
+
     public Long getId() {
         return id;
     }
