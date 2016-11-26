@@ -58,3 +58,4 @@ modules.xml
 data/
 src/main/resources/application.yml
 target
+.idea
