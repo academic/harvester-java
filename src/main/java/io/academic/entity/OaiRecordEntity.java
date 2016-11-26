@@ -1,80 +1,76 @@
 package io.academic.entity;
 
+import io.academic.dao.OaiRecordDao;
+
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import java.util.Date;
 
 /**
  * Created by musaceylan on 11/26/16.
  */
 public class OaiRecordEntity {
 
+    public OaiRecordEntity(OaiRecordDao oaiRecordDao) {
+            this.URL = oaiRecordDao.getURL();
+        this.token = oaiRecordDao.getToken();
+        this.responseDate = oaiRecordDao.getResponseDate();
+        this.record = oaiRecordDao.getRecord();
+        this.state = oaiRecordDao.getState();
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    }
 
     @Column
-    private String title;
+    private String URL;
 
     @Column
-    private String body;
+    private String token;
 
     @Column
-    private String keywords;
+    private Date responseDate;
 
     @Column
-    private String authors;
+    private String record;
 
     @Column
-    private String dc;
+    private String state;
 
-    public Long getId() {
-        return id;
+    public String getURL() {
+        return URL;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setURL(String URL) {
+        this.URL = URL;
     }
 
-    public String getTitle() {
-        return title;
+    public String getToken() {
+        return token;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setToken(String token) {
+        this.token = token;
     }
 
-    public String getBody() {
-        return body;
+    public Date getResponseDate() {
+        return responseDate;
     }
 
-    public void setBody(String body) {
-        this.body = body;
+    public void setResponseDate(Date responseDate) {
+        this.responseDate = responseDate;
     }
 
-    public String getKeywords() {
-        return keywords;
+    public String getRecord() {
+        return record;
     }
 
-    public void setKeywords(String keywords) {
-        this.keywords = keywords;
+    public void setRecord(String record) {
+        this.record = record;
     }
 
-    public String getAuthors() {
-        return authors;
+    public String getState() {
+        return state;
     }
 
-    public void setAuthors(String authors) {
-        this.authors = authors;
-    }
-
-    public String getDc() {
-        return dc;
-    }
-
-    public void setDc(String dc) {
-        this.dc = dc;
+    public void setState(String state) {
+        this.state = state;
     }
 }
