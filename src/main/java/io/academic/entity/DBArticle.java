@@ -11,17 +11,29 @@ public class DBArticle {
     public DBArticle(CreateArticleDao createArticleDao) {
         this.title = createArticleDao.getTitle();
         this.body = createArticleDao.getBody();
+        this.keywords = createArticleDao.getKeywords();
+        this.authors = createArticleDao.getAuthors();
+        this.dc = createArticleDao.getDc();
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    private Long id;
 
     @Column
     private String title;
 
     @Column
     private String body;
+
+    @Column
+    private String keywords;
+
+    @Column
+    private String authors;
+
+    @Column
+    private String dc;
 
     public Long getId() {
         return id;
@@ -45,5 +57,29 @@ public class DBArticle {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public String getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(String keywords) {
+        this.keywords = keywords;
+    }
+
+    public String getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(String authors) {
+        this.authors = authors;
+    }
+
+    public String getDc() {
+        return dc;
+    }
+
+    public void setDc(String dc) {
+        this.dc = dc;
     }
 }

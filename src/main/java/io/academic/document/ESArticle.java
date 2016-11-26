@@ -13,6 +13,9 @@ public class ESArticle implements Serializable {
     public ESArticle(CreateArticleDao createArticleDao) {
         this.title = createArticleDao.getTitle();
         this.body = createArticleDao.getBody();
+        this.keywords = createArticleDao.getKeywords();
+        this.authors = createArticleDao.getAuthors();
+        this.dc = createArticleDao.getDc();
     }
 
     @Id
@@ -21,6 +24,12 @@ public class ESArticle implements Serializable {
     private String title;
 
     private String body;
+
+    private String keywords;
+
+    private String authors;
+
+    private String dc;
 
     public String getId() {
         return id;
@@ -44,5 +53,29 @@ public class ESArticle implements Serializable {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public String getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(String keywords) {
+        this.keywords = keywords;
+    }
+
+    public String getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(String authors) {
+        this.authors = authors;
+    }
+
+    public String getDc() {
+        return dc;
+    }
+
+    public void setDc(String dc) {
+        this.dc = dc;
     }
 }
