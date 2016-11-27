@@ -1,7 +1,9 @@
 package io.academic.entity;
 
-/**
- * Created by musaceylan on 11/26/16.
- */
-public interface OaiRecordRepository {
+import org.springframework.data.repository.PagingAndSortingRepository;
+
+import java.util.List;
+
+public interface OaiRecordRepository extends PagingAndSortingRepository<OaiRecord, Long> {
+    List<OaiRecord> findById(Long Id);
 }

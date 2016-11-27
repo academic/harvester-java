@@ -4,18 +4,17 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import java.util.Date;
 
-/**
- * Created by musaceylan on 11/26/16.
- */
-public class OaiRecordDao {
+public class CreateOaiRecordDao {
+
+    public CreateOaiRecordDao(){
+    }
 
     @NotBlank
-    private String URL;
+    private String url;
 
     @NotBlank
     private String token;
 
-    @NotBlank
     private Date responseDate;
 
     @NotBlank
@@ -25,7 +24,7 @@ public class OaiRecordDao {
     private String state;
 
     public String getURL() {
-        return URL;
+        return url;
     }
 
     public String getToken() {

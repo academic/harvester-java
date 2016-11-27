@@ -1,26 +1,29 @@
 package io.academic.entity;
 
-import io.academic.dao.OaiRecordDao;
+import io.academic.dao.CreateOaiRecordDao;
 
-import javax.persistence.Column;
+import javax.persistence.*;
 import java.util.Date;
 
-/**
- * Created by musaceylan on 11/26/16.
- */
-public class OaiRecordEntity {
+@Table(name = "oai_record")
+@Entity
+public class OaiRecord {
 
-    public OaiRecordEntity(OaiRecordDao oaiRecordDao) {
-            this.URL = oaiRecordDao.getURL();
-        this.token = oaiRecordDao.getToken();
-        this.responseDate = oaiRecordDao.getResponseDate();
-        this.record = oaiRecordDao.getRecord();
-        this.state = oaiRecordDao.getState();
+    public OaiRecord(CreateOaiRecordDao createOaiRecordDao) {
+        this.url = createOaiRecordDao.getURL();
+        this.token = createOaiRecordDao.getToken();
+        this.responseDate = createOaiRecordDao.getResponseDate();
+        this.record = createOaiRecordDao.getRecord();
+        this.state = createOaiRecordDao.getState();
 
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column
-    private String URL;
+    private String url;
 
     @Column
     private String token;
@@ -34,12 +37,16 @@ public class OaiRecordEntity {
     @Column
     private String state;
 
+
+    public OaiRecord() {
+
+    }
     public String getURL() {
-        return URL;
+        return url;
     }
 
     public void setURL(String URL) {
-        this.URL = URL;
+        this.url = url;
     }
 
     public String getToken() {
@@ -72,5 +79,13 @@ public class OaiRecordEntity {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

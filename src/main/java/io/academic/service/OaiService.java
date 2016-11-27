@@ -1,9 +1,11 @@
 package io.academic.service;
 
-import io.academic.document.ESArticleRepository;
-import io.academic.entity.DBArticleRepository;
+import io.academic.entity.OaiRecord;
 import io.academic.entity.OaiRecordRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
@@ -12,18 +14,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class OaiService {
 
+    Logger log = LoggerFactory.getLogger(ArticleService.class);
 
-    @Autowired
-    ESArticleRepository esArticleRepository;
-
-    @Autowired
-    DBArticleRepository dbArticleRepository;
 
     @Autowired
     OaiRecordRepository oaiRecordRepository;
 
-
-
-
-
+    @Async
+    public void queue(OaiRecord oaiRecord) {
+        oaiRecordRepository.save(oaiRecord);
+        log.info("OAI saved in PostgreSQL with ID: {}", oaiRecord.getId());
+    }
 }
