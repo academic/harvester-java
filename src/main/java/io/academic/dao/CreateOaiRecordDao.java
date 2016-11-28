@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class CreateOaiRecordDao {
 
-    public CreateOaiRecordDao(){
+    public CreateOaiRecordDao() {
     }
 
     @NotBlank
@@ -16,6 +16,10 @@ public class CreateOaiRecordDao {
     private String token;
 
     private Date responseDate;
+
+    private String identifier;
+
+    private String datestamp;
 
     @NotBlank
     private String record;
@@ -41,5 +45,13 @@ public class CreateOaiRecordDao {
 
     public String getState() {
         return state;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public String getDatestamp() {
+        return datestamp;
     }
 }

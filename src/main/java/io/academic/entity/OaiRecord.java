@@ -13,8 +13,15 @@ public class OaiRecord {
         this.url = createOaiRecordDao.getURL();
         this.token = createOaiRecordDao.getToken();
         this.responseDate = createOaiRecordDao.getResponseDate();
+        this.identifier = createOaiRecordDao.getIdentifier();
+        this.datestamp = createOaiRecordDao.getDatestamp();
         this.record = createOaiRecordDao.getRecord();
         this.state = createOaiRecordDao.getState();
+
+    }
+
+
+    public OaiRecord() {
 
     }
 
@@ -32,15 +39,18 @@ public class OaiRecord {
     private Date responseDate;
 
     @Column
+    private String identifier;
+
+    @Column
+    private String datestamp;
+
+    @Column
     private String record;
 
     @Column
     private String state;
 
 
-    public OaiRecord() {
-
-    }
     public String getURL() {
         return url;
     }
@@ -87,5 +97,21 @@ public class OaiRecord {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public String getDatestamp() {
+        return datestamp;
+    }
+
+    public void setDatestamp(String datestamp) {
+        this.datestamp = datestamp;
     }
 }
