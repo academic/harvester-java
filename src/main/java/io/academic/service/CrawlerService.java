@@ -1,9 +1,9 @@
 package io.academic.service;
 
 import io.academic.dao.CrawlerDao;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
@@ -11,16 +11,12 @@ import org.apache.tika.parser.xml.DcXMLParser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 
 /**
  * Crawls xmls and sends to data management services
@@ -49,7 +45,13 @@ public class CrawlerService {
 
             // Step 2: Get records of this page
 
+            Elements records = getRecords(doc);
+
             // Step 3: Parse DC
+
+            for (Element record : records) {
+                log.info( "Record: {}", record.html() );
+            }
 
             // Step 4: Record OAI Records to database
 
@@ -68,8 +70,14 @@ public class CrawlerService {
 
     }
 
-    public String getResumptionToken(Document doc) throws IOException {
+    private String getResumptionToken(Document doc) throws IOException {
         return doc.select( "resumptionToken" ).first().ownText();
+    }
+
+
+    private Elements getRecords(Document doc) throws IOException {
+        Elements records = doc.select( "record" );
+        return  records;
     }
 
 
