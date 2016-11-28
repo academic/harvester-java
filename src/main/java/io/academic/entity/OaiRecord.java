@@ -55,10 +55,6 @@ public class OaiRecord {
     private String state;
 
 
-    public UUID getId() {
-        return id;
-    }
-
     public String getURL() {
         return url;
     }
