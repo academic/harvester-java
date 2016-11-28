@@ -16,7 +16,7 @@ public class CrawlerController {
     @Autowired
     CrawlerService crawlerService;
 
-    @PostMapping(value = "/craw")
+    @PostMapping(value = "/crawl")
     public MessageDao add(@RequestBody @Valid CrawlerDao crawlerDao) {
 
         crawlerService.parse(crawlerDao);
