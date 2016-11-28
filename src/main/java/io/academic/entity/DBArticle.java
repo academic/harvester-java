@@ -1,8 +1,11 @@
 package io.academic.entity;
 
 import io.academic.dao.CreateArticleDao;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Table(name = "articles")
 @Entity
@@ -16,9 +19,11 @@ public class DBArticle {
         this.dc = createArticleDao.getDc();
     }
 
+    @Type(type = "pg-uuid")
+    @GenericGenerator(name = "uuid-gen", strategy = "uuid2")
+    @GeneratedValue(generator = "uuid-gen")
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @Column
     private String title;
@@ -39,11 +44,11 @@ public class DBArticle {
 
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
