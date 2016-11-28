@@ -45,7 +45,7 @@ public class CrawlerService {
             Elements records = getRecords( doc );
 
             // Step 3: Get resumptionToken
-            resumptionToken = doc.select( "resumptionToken" ).first().ownText();
+            resumptionToken = doc.select( "resumptionToken" ).html();
 
             if (resumptionToken.isEmpty()) {
                 log.info( "URL crawler wil stop" );
@@ -59,16 +59,16 @@ public class CrawlerService {
                 log.info( "Record: {}", crawlerDao.getHref() );
 
                 OaiRecord oaiRecord = new OaiRecord();
-                oaiRecord.setSpec( record.select( "setSpec" ).html());
+                oaiRecord.setSpec( record.select( "setSpec" ).html() );
                 oaiRecord.setToken( resumptionToken );
                 try {
-                    oaiRecord.setResponseDate( this.stringToDate( doc.select( "responseDate" ).first().ownText() ));
+                    oaiRecord.setResponseDate( this.stringToDate( doc.select( "responseDate" ).html() ) );
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                oaiRecord.setIdentifier(record.select( "identifier" ).html());
-                oaiRecord.setDc(record.select( "metadata" ).html());
-                oaiRecord.setDatestamp(record.select( "datestamp" ).html());
+                oaiRecord.setIdentifier( record.select( "identifier" ).html() );
+                oaiRecord.setDc( record.select( "metadata" ).html() );
+                oaiRecord.setDatestamp( record.select( "datestamp" ).html() );
                 oaiRecord.setState( 0 );
 
                 // Step 5: Record OAI Records to database
@@ -88,11 +88,9 @@ public class CrawlerService {
 
 
     private Elements getRecords(Document doc) throws IOException {
-        Elements records = doc.select( "record" );
-        return records;
+        return doc.select( "record" );
     }
 
-    // 2012-12-25T21:50:11Z
     private Date stringToDate(String str) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss'Z'" );
         return sdf.parse( str );
