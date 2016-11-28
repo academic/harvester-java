@@ -18,7 +18,7 @@ public class OaiService {
 
 
     @Autowired
-    OaiRecordRepository oaiRecordRepository;
+    private OaiRecordRepository oaiRecordRepository;
 
     @Async
     public void queue(OaiRecord oaiRecord) {

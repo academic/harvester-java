@@ -1,9 +1,12 @@
 package io.academic.entity;
 
 import io.academic.dao.CreateOaiRecordDao;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.UUID;
 
 @Table(name = "oai_record")
 @Entity
@@ -18,9 +21,11 @@ public class OaiRecord {
 
     }
 
+    @Type(type = "pg-uuid")
+    @GenericGenerator(name = "uuid-gen", strategy = "uuid2")
+    @GeneratedValue(generator = "uuid-gen")
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @Column
     private String url;
@@ -41,6 +46,11 @@ public class OaiRecord {
     public OaiRecord() {
 
     }
+
+    public UUID getId() {
+        return id;
+    }
+
     public String getURL() {
         return url;
     }
@@ -81,11 +91,4 @@ public class OaiRecord {
         this.state = state;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }
