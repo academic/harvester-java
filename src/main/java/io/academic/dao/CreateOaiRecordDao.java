@@ -25,7 +25,7 @@ public class CreateOaiRecordDao {
     private String record;
 
     @NotBlank
-    private String state;
+    private Integer state;
 
     public String getURL() {
         return url;
@@ -43,7 +43,7 @@ public class CreateOaiRecordDao {
         return record;
     }
 
-    public String getState() {
+    public Integer getState() {
         return state;
     }
 
