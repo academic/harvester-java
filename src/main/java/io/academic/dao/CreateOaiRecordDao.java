@@ -10,25 +10,26 @@ public class CreateOaiRecordDao {
     }
 
     @NotBlank
-    private String url;
+    private String spec;
 
     @NotBlank
     private String token;
 
     private Date responseDate;
 
+    @NotBlank
     private String identifier;
 
     private String datestamp;
 
     @NotBlank
-    private String record;
+    private String dc;
 
     @NotBlank
     private Integer state;
 
-    public String getURL() {
-        return url;
+    public String getSpec() {
+        return spec;
     }
 
     public String getToken() {
@@ -39,8 +40,8 @@ public class CreateOaiRecordDao {
         return responseDate;
     }
 
-    public String getRecord() {
-        return record;
+    public String getDc() {
+        return dc;
     }
 
     public Integer getState() {
@@ -51,7 +52,5 @@ public class CreateOaiRecordDao {
         return identifier;
     }
 
-    public String getDatestamp() {
-        return datestamp;
-    }
+    public String getDatestamp() {return datestamp;}
 }
