@@ -16,10 +16,10 @@ public class ArticleService {
     Logger log = LoggerFactory.getLogger(ArticleService.class);
 
     @Autowired
-    ESArticleRepository esArticleRepository;
+    private ESArticleRepository esArticleRepository;
 
     @Autowired
-    DBArticleRepository dbArticleRepository;
+    private DBArticleRepository dbArticleRepository;
 
     @Async
     public void queue(ESArticle esArticle) {
