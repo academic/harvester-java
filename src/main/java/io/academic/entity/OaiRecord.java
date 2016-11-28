@@ -13,12 +13,12 @@ import java.util.UUID;
 public class OaiRecord {
 
     public OaiRecord(CreateOaiRecordDao createOaiRecordDao) {
-        this.url = createOaiRecordDao.getURL();
+        this.spec = createOaiRecordDao.getSpec();
         this.token = createOaiRecordDao.getToken();
         this.responseDate = createOaiRecordDao.getResponseDate();
         this.identifier = createOaiRecordDao.getIdentifier();
         this.datestamp = createOaiRecordDao.getDatestamp();
-        this.record = createOaiRecordDao.getRecord();
+        this.dc = createOaiRecordDao.getDc();
         this.state = createOaiRecordDao.getState();
 
     }
@@ -34,7 +34,7 @@ public class OaiRecord {
     private UUID id;
 
     @Column
-    private String url;
+    private String spec;
 
     @Column
     private String token;
@@ -49,19 +49,12 @@ public class OaiRecord {
     private String datestamp;
 
     @Column
-    private String record;
+    @Type(type = "text")
+    private String dc;
 
     @Column
-    private String state;
+    private Integer state;
 
-
-    public String getURL() {
-        return url;
-    }
-
-    public void setURL(String URL) {
-        this.url = url;
-    }
 
     public String getToken() {
         return token;
@@ -79,21 +72,9 @@ public class OaiRecord {
         this.responseDate = responseDate;
     }
 
-    public String getRecord() {
-        return record;
-    }
+    public Integer getState() {return state;}
 
-    public void setRecord(String record) {
-        this.record = record;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
+    public void setState(Integer state) {this.state = state;}
 
     public UUID getId() {
         return id;
@@ -117,5 +98,17 @@ public class OaiRecord {
 
     public void setDatestamp(String datestamp) {
         this.datestamp = datestamp;
+    }
+
+    public String getDc() {return dc;}
+
+    public void setDc(String dc) {this.dc = dc;}
+
+    public String getSpec() {
+        return spec;
+    }
+
+    public void setSpec(String spec) {
+        this.spec = spec;
     }
 }
