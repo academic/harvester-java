@@ -44,7 +44,16 @@ public class CrawlerService {
 
             Elements records = getRecords( doc );
 
-            // Step 3: Parse DC
+            // Step 3: Get resumptionToken
+            resumptionToken = doc.select( "resumptionToken" ).first().ownText();
+
+            if (resumptionToken.isEmpty()) {
+                log.info( "URL crawler wil stop" );
+            } else {
+                log.info( "URL crawler will try new token: {}", resumptionToken );
+            }
+
+            // Step 4: Parse DC
 
             for (Element record : records) {
                 log.info( "Record: {}", crawlerDao.getHref() );
@@ -62,20 +71,9 @@ public class CrawlerService {
                 oaiRecord.setDatestamp(record.select( "datestamp" ).html());
                 oaiRecord.setState( 0 );
 
-                // Step 4: Record OAI Records to database
+                // Step 5: Record OAI Records to database
                 oaiService.queue( oaiRecord );
             }
-
-
-            // Step 5: Get resumptionToken
-            resumptionToken = doc.select( "resumptionToken" ).first().ownText();
-
-            if (resumptionToken.isEmpty()) {
-                log.info( "URL crawler wil stop" );
-            } else {
-                log.info( "URL crawler will try new token: {}", resumptionToken );
-            }
-
 
             // Step 6: Built new url
 
