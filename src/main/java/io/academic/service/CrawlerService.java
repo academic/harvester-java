@@ -5,18 +5,11 @@ import io.academic.entity.OaiRecord;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.parser.xml.DcXMLParser;
-import org.apache.tika.sax.BodyContentHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import org.xml.sax.ContentHandler;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -39,10 +32,6 @@ public class CrawlerService {
         log.info( "URL crawler started href: {}", crawlerDao.getHref() );
 
         String resumptionToken = null;
-        Parser parser = new DcXMLParser();
-        ContentHandler handler = new BodyContentHandler();
-        Metadata metadata = new Metadata();
-        ParseContext parseContext = new ParseContext();
 
 
         try {
@@ -58,19 +47,19 @@ public class CrawlerService {
             // Step 3: Parse DC
 
             for (Element record : records) {
-                log.info( "Record: {}", record.html() );
+                log.info( "Record: {}", crawlerDao.getHref() );
 
                 OaiRecord oaiRecord = new OaiRecord();
-                oaiRecord.setURL( crawlerDao.getHref() );
+                oaiRecord.setSpec( record.select( "setSpec" ).html());
                 oaiRecord.setToken( resumptionToken );
                 try {
-                    oaiRecord.setResponseDate( this.stringToDate( this.getResponseDate( doc ) ));
+                    oaiRecord.setResponseDate( this.stringToDate( doc.select( "responseDate" ).first().ownText() ));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                oaiRecord.setIdentifier( metadata.get( "identifier" ) );
-                oaiRecord.setDatestamp( metadata.get( "datestamp" ) );
-                oaiRecord.setRecord( metadata.get( "metadata" ) );
+                oaiRecord.setIdentifier(record.select( "identifier" ).html());
+                oaiRecord.setDc(record.select( "metadata" ).html());
+                oaiRecord.setDatestamp(record.select( "datestamp" ).html());
                 oaiRecord.setState( 0 );
 
                 // Step 4: Record OAI Records to database
@@ -79,7 +68,7 @@ public class CrawlerService {
 
 
             // Step 5: Get resumptionToken
-            resumptionToken = this.getResumptionToken( doc );
+            resumptionToken = doc.select( "resumptionToken" ).first().ownText();
 
             if (resumptionToken.isEmpty()) {
                 log.info( "URL crawler wil stop" );
@@ -99,14 +88,6 @@ public class CrawlerService {
 
     }
 
-    private String getResponseDate(Document doc) throws IOException {
-        return doc.select( "responseDate" ).first().ownText();
-    }
-
-    private String getResumptionToken(Document doc) throws IOException {
-        return doc.select( "resumptionToken" ).first().ownText();
-    }
-
 
     private Elements getRecords(Document doc) throws IOException {
         Elements records = doc.select( "record" );
@@ -114,9 +95,9 @@ public class CrawlerService {
     }
 
     // 2012-12-25T21:50:11Z
-    private Date stringToDate(String datetimestring) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd hh:mmaZ" );
-        return sdf.parse( datetimestring );
+    private Date stringToDate(String str) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss'Z'" );
+        return sdf.parse( str );
     }
 
 
