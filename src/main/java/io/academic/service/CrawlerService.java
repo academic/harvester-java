@@ -47,12 +47,6 @@ public class CrawlerService {
             // Step 3: Get resumptionToken
             resumptionToken = doc.select( "resumptionToken" ).html();
 
-            if (resumptionToken.isEmpty()) {
-                log.info( "URL crawler wil stop" );
-            } else {
-                log.info( "URL crawler will try new token: {}", resumptionToken );
-            }
-
             // Step 4: Parse DC
 
             for (Element record : records) {
@@ -75,10 +69,27 @@ public class CrawlerService {
                 oaiService.queue( oaiRecord );
             }
 
-            // Step 6: Built new url
+            if (resumptionToken.isEmpty()) {
+                log.info( "URL crawler wil stop" );
+            } else {
+                log.info( "URL crawler will try new token: {}", resumptionToken );
+
+                // Step 6: Built new url
+
+                String newoai = crawlerDao.getHref() + "&resumptionToken=" + resumptionToken;
+
+                log.info( "New Token with URL: {}", newoai );
 
 
-            // Step 7: Recall this metod with new link
+                // Step 7: Recall this metod with new link
+
+
+                CrawlerService crawlerService = new CrawlerService();
+                CrawlerDao newCrawlerDao = new CrawlerDao();
+                newCrawlerDao.setHref( newoai );
+                crawlerService.parse( newCrawlerDao );
+
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

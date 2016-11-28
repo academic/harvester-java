@@ -21,6 +21,6 @@ public class CrawlerController {
 
         crawlerService.parse(crawlerDao);
 
-        return new MessageDao("Queued!");
+        return new MessageDao("Crawler Queued!");
     }
 }
