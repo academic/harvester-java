@@ -53,7 +53,7 @@ public class OaiRecord {
     private String record;
 
     @Column
-    private String state;
+    private Integer state;
 
 
     public String getURL() {
@@ -88,13 +88,9 @@ public class OaiRecord {
         this.record = record;
     }
 
-    public String getState() {
-        return state;
-    }
+    public Integer getState() {return state;}
 
-    public void setState(String state) {
-        this.state = state;
-    }
+    public void setState(Integer state) {this.state = state;}
 
     public UUID getId() {
         return id;
