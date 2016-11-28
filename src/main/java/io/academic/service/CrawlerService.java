@@ -1,19 +1,22 @@
 package io.academic.service;
 
-import io.academic.entity.DBArticle;
-import org.apache.tika.exception.TikaException;
+import io.academic.dao.CrawlerDao;
+import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.xml.DcXMLParser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
-import org.xml.sax.SAXException;
+
+import org.xml.sax.ContentHandler;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Crawls xmls and sends to data management services
@@ -21,45 +24,60 @@ import java.util.List;
 @Service
 public class CrawlerService {
 
+    Logger log = LoggerFactory.getLogger( CrawlerService.class );
 
-    public static DBArticle parse (String href) throws IOException, TikaException, SAXException {
+    public void parse(CrawlerDao crawlerDao) {
 
+        log.info( "URL crawler started href: {}", crawlerDao.getHref() );
 
-        //Document doc = Jsoup.connect(href).get();
-       // Document doc = Jsoup.parse(href);
-
-       // Element e = doc.select("metadata").first();
-        // String a = e.attr("dc:identifier");
-        // InputStream stream = new ByteArrayInputStream(e.getBytes(StandardCharsets.UTF_8));
-        // InputStream stream = IOUtils.toInputStream(href);
-
-
-        DcXMLParser parser = new DcXMLParser();
-        InputStream stream =  new URL(href).openStream();
-        BodyContentHandler handler = new BodyContentHandler(-1);
+        String resumptionToken = null;
+        Parser parser = new DcXMLParser();
+        ContentHandler handler = new BodyContentHandler();
         Metadata metadata = new Metadata();
         ParseContext parseContext = new ParseContext();
 
 
-        List<Metadata> metadatas = new ArrayList<>();
+        try {
 
-        parser.parse(stream,handler,metadata,parseContext);
+            // Step 1: Get url
 
-        DBArticle article = new DBArticle();
+            Document doc = Jsoup.connect( crawlerDao.getHref() ).get();
 
-      //  article.setId(metadata.get("identifier"));
-        article.setTitle(metadata.get("title"));
-        article.setBody(metadata.get("creator"));
+            // Step 2: Get records of this page
 
-        stream.close();
+            Elements records = getRecords(doc);
 
-//        String a = metadata.get("creator");
+            // Step 3: Parse DC
+
+            for (Element record : records) {
+                log.info( "Record: {}", record.html() );
+            }
+
+            // Step 4: Record OAI Records to database
+
+            // Step 5: Get resumptionToken
+
+            // Step 6: Built new url
+
+            resumptionToken = this.getResumptionToken(doc);
+            log.info( "URL crawler will try new token: {}", resumptionToken );
+
+            // Step 7: Recall this metod with new link
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private String getResumptionToken(Document doc) throws IOException {
+        return doc.select( "resumptionToken" ).first().ownText();
+    }
 
 
-
-
-        return article;
-
+    private Elements getRecords(Document doc) throws IOException {
+        Elements records = doc.select( "record" );
+        return  records;
     }
 
 
