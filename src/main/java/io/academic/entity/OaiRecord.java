@@ -23,7 +23,6 @@ public class OaiRecord {
 
     }
 
-
     public OaiRecord() {
 
     }
@@ -55,6 +54,10 @@ public class OaiRecord {
     @Column
     private String state;
 
+
+    public UUID getId() {
+        return id;
+    }
 
     public String getURL() {
         return url;
