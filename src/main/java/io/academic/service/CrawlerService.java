@@ -1,5 +1,7 @@
 package io.academic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.academic.entity.OaiRecord;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -7,10 +9,12 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.openarchives.oai._2.ListRecordsType;
+import org.openarchives.oai._2.MetadataType;
 import org.openarchives.oai._2.OAIPMHtype;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.oxm.Marshaller;
 import org.springframework.oxm.Unmarshaller;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +22,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -34,7 +37,13 @@ public class CrawlerService {
     Logger log = LoggerFactory.getLogger(CrawlerService.class);
 
     @Autowired
+    ObjectMapper objectMapper;
+
+    @Autowired
     private Unmarshaller unmarshaller;
+
+    @Autowired
+    private Marshaller marshaller;
 
     @Autowired
     private OaiService oaiService;
@@ -52,7 +61,7 @@ public class CrawlerService {
                 oaiRecord.setSpec(recordType.getHeader().getSetSpec().get(0));
                 oaiRecord.setIdentifier(recordType.getHeader().getIdentifier());
                 oaiRecord.setDatestamp(parseDateTime(recordType.getHeader().getDatestamp()));
-                oaiRecord.setDc(recordType.getMetadata().toString());
+                oaiRecord.setDc(unmarshallDc(recordType.getMetadata()));
                 oaiRecord.setState(0);
                 oaiService.queue(oaiRecord);
             });
@@ -73,6 +82,14 @@ public class CrawlerService {
             } else {
                 follow = false;
             }
+        }
+    }
+
+    public String unmarshallDc(MetadataType metadataType) {
+        try {
+            return objectMapper.writeValueAsString(metadataType);
+        } catch (JsonProcessingException e) {
+            return e.getMessage();
         }
     }
 
