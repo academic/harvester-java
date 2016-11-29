@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 /**
  * Crawls an OAI endpoint and stores all.
  */
@@ -25,4 +27,16 @@ public class OaiService {
         oaiRecordRepository.save(oaiRecord);
         log.info("OAI saved in PostgreSQL with ID: {}", oaiRecord.getId());
     }
+
+
+    @Async
+    public  OaiRecord getOaiRecord(UUID id) {
+
+
+        OaiRecord oaiRecord = oaiRecordRepository.findOne(id);
+
+        return  oaiRecord;
+    }
+
+
 }

@@ -27,6 +27,7 @@ public class OaiRecord {
 
     }
 
+
     @Type(type = "pg-uuid")
     @GenericGenerator(name = "uuid-gen", strategy = "uuid2")
     @GeneratedValue(generator = "uuid-gen")
@@ -111,4 +112,8 @@ public class OaiRecord {
     public void setSpec(String spec) {
         this.spec = spec;
     }
+
+
+
+
 }

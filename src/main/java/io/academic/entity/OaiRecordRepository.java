@@ -9,4 +9,15 @@ public interface OaiRecordRepository extends PagingAndSortingRepository<OaiRecor
 
     List<OaiRecord> findById(UUID id);
 
+    /**
+     * Retrieves an entity by its id.
+     *
+     * @param id must not be {@literal null}.
+     * @return the entity with the given id or {@literal null} if none found
+     * @throws IllegalArgumentException if {@code id} is {@literal null}
+     */
+     OaiRecord findOne(UUID id);
+     Iterable<OaiRecord> findAll();
+
+
 }

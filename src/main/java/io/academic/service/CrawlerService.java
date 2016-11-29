@@ -2,12 +2,12 @@ package io.academic.service;
 
 import io.academic.dao.CrawlerDao;
 import io.academic.entity.OaiRecord;
-import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +26,8 @@ public class CrawlerService {
 
     @Autowired
     OaiService oaiService;
+
+
 
     public void parse(CrawlerDao crawlerDao) {
 
@@ -71,8 +73,11 @@ public class CrawlerService {
                 oaiRecord.setDatestamp( record.select( "datestamp" ).html() );
                 oaiRecord.setState( 0 );
 
+
+
                 // Step 5: Record OAI Records to database
                 oaiService.queue( oaiRecord );
+
             }
 
             // Step 6: Built new url
