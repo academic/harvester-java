@@ -14,8 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class OaiService {
 
-    Logger log = LoggerFactory.getLogger(ArticleService.class);
-
+    Logger log = LoggerFactory.getLogger(OaiService.class);
 
     @Autowired
     private OaiRecordRepository oaiRecordRepository;

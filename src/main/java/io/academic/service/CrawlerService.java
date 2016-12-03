@@ -1,84 +1,101 @@
 package io.academic.service;
 
-import io.academic.dao.CrawlerDao;
-import org.jsoup.select.Elements;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.academic.entity.OaiRecord;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.openarchives.oai._2.ListRecordsType;
+import org.openarchives.oai._2.MetadataType;
+import org.openarchives.oai._2.OAIPMHtype;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.parser.xml.DcXMLParser;
-import org.apache.tika.sax.BodyContentHandler;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.oxm.Marshaller;
+import org.springframework.oxm.Unmarshaller;
 import org.springframework.stereotype.Service;
 
-import org.xml.sax.ContentHandler;
-
+import javax.xml.bind.JAXBElement;
+import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Crawls xmls and sends to data management services
+ * This class needs refactoring for future repeating tasks
+ * Only support ListRecordsType fetch / parse operations
+ * Also some of the parts must written in defensive (null aware) perception
  */
 @Service
 public class CrawlerService {
 
-    Logger log = LoggerFactory.getLogger( CrawlerService.class );
+    Logger log = LoggerFactory.getLogger(CrawlerService.class);
 
-    public void parse(CrawlerDao crawlerDao) {
+    @Autowired
+    ObjectMapper objectMapper;
 
-        log.info( "URL crawler started href: {}", crawlerDao.getHref() );
+    @Autowired
+    private Unmarshaller unmarshaller;
 
-        String resumptionToken = null;
-        Parser parser = new DcXMLParser();
-        ContentHandler handler = new BodyContentHandler();
-        Metadata metadata = new Metadata();
-        ParseContext parseContext = new ParseContext();
+    @Autowired
+    private Marshaller marshaller;
 
+    @Autowired
+    private OaiService oaiService;
 
-        try {
+    public ListRecordsType fetchListRecords(String url) throws IOException, URISyntaxException {
+        HttpGet httpGet = new HttpGet(url);
+        log.info("Sending fetch list record request to {}", url);
+        try (CloseableHttpClient closeableHttpClient = HttpClients.createDefault()) {
+            CloseableHttpResponse closeableHttpResponse = closeableHttpClient.execute(httpGet);
+            JAXBElement<OAIPMHtype> records = (JAXBElement<OAIPMHtype>) unmarshaller.unmarshal(new StreamSource(closeableHttpResponse.getEntity().getContent()));
+            ListRecordsType list = records.getValue().getListRecords();
+            log.info("Found {} record", list.getRecord().size());
+            list.getRecord().forEach(recordType -> {
+                OaiRecord oaiRecord = new OaiRecord();
+                oaiRecord.setSpec(recordType.getHeader().getSetSpec().get(0));
+                oaiRecord.setIdentifier(recordType.getHeader().getIdentifier());
+                oaiRecord.setDatestamp(parseDateTime(recordType.getHeader().getDatestamp()));
+                oaiRecord.setDc(unmarshallDc(recordType.getMetadata()));
+                oaiRecord.setState(0);
+                oaiService.queue(oaiRecord);
+            });
 
-            // Step 1: Get url
-
-            Document doc = Jsoup.connect( crawlerDao.getHref() ).get();
-
-            // Step 2: Get records of this page
-
-            Elements records = getRecords(doc);
-
-            // Step 3: Parse DC
-
-            for (Element record : records) {
-                log.info( "Record: {}", record.html() );
-            }
-
-            // Step 4: Record OAI Records to database
-
-            // Step 5: Get resumptionToken
-
-            // Step 6: Built new url
-
-            resumptionToken = this.getResumptionToken(doc);
-            log.info( "URL crawler will try new token: {}", resumptionToken );
-
-            // Step 7: Recall this metod with new link
-
-        } catch (IOException e) {
-            e.printStackTrace();
+            return list;
         }
-
     }
 
-    private String getResumptionToken(Document doc) throws IOException {
-        return doc.select( "resumptionToken" ).first().ownText();
+    public void fetchAndFollowListRecords(String url) throws IOException, URISyntaxException {
+        boolean follow = true;
+        while (follow) {
+            ListRecordsType list = fetchListRecords(url);
+            if (list.getResumptionToken() != null && list.getResumptionToken().getValue().length() > 0) {
+                URIBuilder uriBuilder = new URIBuilder(url);
+                uriBuilder.addParameter("resumptionToken", list.getResumptionToken().getValue());
+                url = uriBuilder.build().toString();
+                log.info("Following with resumptionToken: {}", list.getResumptionToken().getValue());
+            } else {
+                follow = false;
+            }
+        }
     }
 
-
-    private Elements getRecords(Document doc) throws IOException {
-        Elements records = doc.select( "record" );
-        return  records;
+    public String unmarshallDc(MetadataType metadataType) {
+        try {
+            return objectMapper.writeValueAsString(metadataType);
+        } catch (JsonProcessingException e) {
+            return e.getMessage();
+        }
     }
 
+    private LocalDateTime parseDateTime(String string) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        return LocalDateTime.parse(string, formatter);
+    }
 
 }

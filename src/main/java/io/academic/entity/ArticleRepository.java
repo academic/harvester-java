@@ -5,8 +5,8 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import java.util.List;
 import java.util.UUID;
 
-public interface DBArticleRepository extends PagingAndSortingRepository<DBArticle, UUID> {
+public interface ArticleRepository extends PagingAndSortingRepository<Article, UUID> {
 
-    List<DBArticle> findByTitle(String title);
+    List<Article> findByTitle(String title);
 
 }

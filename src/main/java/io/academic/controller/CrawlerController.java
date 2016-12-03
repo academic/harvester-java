@@ -14,13 +14,15 @@ import javax.validation.Valid;
 public class CrawlerController {
 
     @Autowired
-    CrawlerService crawlerService;
+    private CrawlerService crawlerService;
 
-    @PostMapping(value = "/crawl")
-    public MessageDao add(@RequestBody @Valid CrawlerDao crawlerDao) {
-
-        crawlerService.parse(crawlerDao);
-
-        return new MessageDao("Queued!");
+    @PostMapping(value = "/crawl/list-records")
+    public MessageDao add(@RequestBody @Valid CrawlerDao crawlerDao) throws Exception  {
+        if (crawlerDao.getFollowResumptionToken()) {
+            crawlerService.fetchAndFollowListRecords(crawlerDao.getUrl());
+        } else {
+            crawlerService.fetchListRecords(crawlerDao.getUrl());
+        }
+        return new MessageDao("Completed");
     }
 }

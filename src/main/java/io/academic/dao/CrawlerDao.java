@@ -3,16 +3,22 @@ package io.academic.dao;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotNull;
+import java.util.Map;
+
 public class CrawlerDao {
-    public CrawlerDao() {
-        this.href = href;
-    }
 
     @NotBlank
-    private String href;
+    private String url;
 
-    public String getHref() {
-        return href;
+    @NotNull
+    private Boolean followResumptionToken;
+
+    public String getUrl() {
+        return url;
     }
 
+    public Boolean getFollowResumptionToken() {
+        return followResumptionToken;
+    }
 }
