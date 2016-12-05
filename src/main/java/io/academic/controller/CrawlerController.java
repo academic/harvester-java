@@ -1,8 +1,11 @@
 package io.academic.controller;
 
+import com.codahale.metrics.annotation.Counted;
+import com.codahale.metrics.annotation.ExceptionMetered;
+import com.codahale.metrics.annotation.Timed;
 import io.academic.dao.MessageDao;
 import io.academic.dao.CrawlerDao;
-import io.academic.service.CrawlerService;
+import io.academic.service.UrlProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,15 +17,17 @@ import javax.validation.Valid;
 public class CrawlerController {
 
     @Autowired
-    private CrawlerService crawlerService;
+    UrlProcessor urlProcessor;
 
     @PostMapping(value = "/crawl/list-records")
-    public MessageDao add(@RequestBody @Valid CrawlerDao crawlerDao) throws Exception  {
-        if (crawlerDao.getFollowResumptionToken()) {
-            crawlerService.fetchAndFollowListRecords(crawlerDao.getUrl());
-        } else {
-            crawlerService.fetchListRecords(crawlerDao.getUrl());
+    @ExceptionMetered
+    @Timed
+    public MessageDao add(@RequestBody @Valid CrawlerDao crawlerDao) {
+        try {
+            urlProcessor.submit(crawlerDao.getUrl());
+        } catch (InterruptedException ie) {
+            throw new RuntimeException("Queue is full", ie);
         }
-        return new MessageDao("Completed");
+        return new MessageDao("Queued");
     }
 }
