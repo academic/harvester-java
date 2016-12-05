@@ -4,21 +4,37 @@ The correct software architecture for OAI harvesters
 
 #### Objectives
 
+###### tech:
+
 - [x] Spring Boot (Best JAVA Framework for web)
 
 - [x] PostgreSQL (Best Solid Open Source Database)
 
 - [x] ElasticSearch (Best search engine and storage)
 
-- [x] Cloud ready
+- [x] Cloud ready, scalable
 
-- [ ] Non-blocking Async jobs.
+- [x] Non-blocking Async jobs.
 
-- [ ] Dublin Core
+###### workers:
 
-- [ ] OAI Harvester
+- [x] OAI Harvester
 
-- [ ] REST JSON API
+- [x] PostgreSQL OAI recorder
+
+- [ ] Dublin Core Parser
+
+- [ ] Elastic Indexer
+
+###### endpoint:
+
+- [ ] REST Search api
+
+- [ ] Workers Triggers
+
+- [ ] Cron job api
+
+###### management:
 
 - [ ] Admin UI
 
