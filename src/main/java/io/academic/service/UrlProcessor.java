@@ -26,9 +26,12 @@ public class UrlProcessor implements Runnable {
     @Qualifier("urlQueue")
     private ArrayBlockingQueue<String> urlQueue;
 
+
     public boolean submit(String url) throws InterruptedException {
+        log.info("       called url (in UrlProcessor): "+url);
         return urlQueue.offer(url, 10, TimeUnit.SECONDS);
     }
+
 
     public void run() {
         log.info("Starting to run URL Processor");
