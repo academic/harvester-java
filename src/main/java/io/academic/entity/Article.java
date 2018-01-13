@@ -1,10 +1,8 @@
 package io.academic.entity;
 
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
-
-import javax.persistence.*;
-import java.util.UUID;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Table(name = "articles")
 @Entity
