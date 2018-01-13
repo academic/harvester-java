@@ -9,5 +9,4 @@ public interface OaiRecordRepository extends PagingAndSortingRepository<OaiRecor
 
     List<OaiRecord> findById(UUID id);
 
-
 }

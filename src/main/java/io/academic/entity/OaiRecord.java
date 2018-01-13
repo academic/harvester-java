@@ -11,10 +11,6 @@ import java.time.LocalDateTime;
 @Entity
 public class OaiRecord extends AbstractAuditingEntity {
 
-    public OaiRecord(){
-
-    }
-
     @Column
     private String spec;
 

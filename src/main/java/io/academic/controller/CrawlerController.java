@@ -1,11 +1,10 @@
 package io.academic.controller;
 
+import com.codahale.metrics.annotation.Counted;
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.Timed;
-import io.academic.dao.CrawlerDao;
 import io.academic.dao.MessageDao;
-import io.academic.entity.OaiRecordRepository;
-import io.academic.service.OaiService;
+import io.academic.dao.CrawlerDao;
 import io.academic.service.UrlProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,12 +19,6 @@ public class CrawlerController {
     @Autowired
     UrlProcessor urlProcessor;
 
-    @Autowired
-    OaiRecordRepository oaiRecordRepository;
-
-    OaiService oaiService;
-
-
     @PostMapping(value = "/crawl/list-records")
     @ExceptionMetered
     @Timed
@@ -37,11 +30,4 @@ public class CrawlerController {
         }
         return new MessageDao("Queued");
     }
-
-
-
-
-
-
-
 }
