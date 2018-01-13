@@ -21,7 +21,6 @@ public class RecordTypeProcessor implements Runnable {
     @Autowired
     private OaiService oaiService;
 
-
     @Resource
     @Qualifier("recordListQueue")
     private ArrayBlockingQueue<List<RecordType>> recordTypeListQueue;
@@ -32,7 +31,6 @@ public class RecordTypeProcessor implements Runnable {
             try {
                 List<RecordType> recordTypes = recordTypeListQueue.take();
                 oaiService.saveRecords(recordTypes);
-
             } catch (InterruptedException e) {
                 log.error("Operation interrupted: {}", e.getMessage());
             }
