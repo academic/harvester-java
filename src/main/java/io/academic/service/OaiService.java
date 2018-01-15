@@ -20,7 +20,6 @@ import org.openarchives.oai._2.RecordType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -30,7 +29,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+<<<<<<< HEAD
 import java.util.Map;
+=======
+import java.util.UUID;
+>>>>>>> 7d7b74e7942dac920b45d604da7982b85e3edbbd
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -49,8 +52,6 @@ public class OaiService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private CounterService counterService;
 
     RestClient restClient = RestClient.builder(
             new HttpHost("localhost", 9200, "http"),
@@ -103,6 +104,12 @@ public class OaiService {
 
         oaiRecordRepository.save(oaiRecords);
         log.info("Saved {} OAI record, time {}ms", oaiRecords.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    }
+
+    @Timed
+    @ExceptionMetered
+    public OaiRecord getOaiRecord(UUID id) {
+        return oaiRecordRepository.findOne(id);
     }
 
     private String marshallDc(MetadataType metadataType) {
