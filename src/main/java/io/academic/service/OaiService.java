@@ -29,11 +29,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-<<<<<<< HEAD
 import java.util.Map;
-=======
 import java.util.UUID;
->>>>>>> 7d7b74e7942dac920b45d604da7982b85e3edbbd
 import java.util.concurrent.TimeUnit;
 
 /**
