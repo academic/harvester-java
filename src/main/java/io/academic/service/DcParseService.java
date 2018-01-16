@@ -3,6 +3,7 @@ package io.academic.service;
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Stopwatch;
+import com.google.gson.JsonObject;
 import io.academic.dao.OaiDao;
 import io.academic.entity.OaiRecord;
 import io.academic.entity.OaiRecordRepository;
@@ -79,6 +80,7 @@ public class DcParseService {
 
     public String parseRecordString(JSONObject jsonObject) throws ParseException {
         String dc="";
+        JsonObject jDc = new JsonObject();
         //we have 3 layer, outer encapsulates inner and inner encapsulates cell
         if (null != jsonObject.get("any")) {
             JSONObject j = (JSONObject) jsonObject.get("any");
@@ -103,10 +105,10 @@ public class DcParseService {
                 else
                 {
                     if (dc.equals("")) {
-                        dc = parts[6] + ": " + cell.trim();
+                        dc = parts[6] + ":: " + cell.trim();
                     }
                     else {
-                        dc += "; \n" + parts[6] + ": " + cell.trim();
+                        dc += ";; \n" + parts[6] + ":: " + cell.trim();
                     }
                 }
                 previousName = parts[6];

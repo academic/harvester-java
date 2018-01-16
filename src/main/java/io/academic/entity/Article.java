@@ -1,5 +1,7 @@
 package io.academic.entity;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -9,9 +11,11 @@ import javax.persistence.Table;
 public class Article extends AbstractAuditingEntity {
 
     @Column
+    @Type(type = "text")
     private String title;
 
     @Column
+    @Type(type = "text")
     private String body;
 
     @Column
@@ -21,6 +25,7 @@ public class Article extends AbstractAuditingEntity {
     private String authors;
 
     @Column
+    @Type(type = "text")
     private String dc;
 
     public String getTitle() {

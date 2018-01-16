@@ -9,12 +9,20 @@ import eu.luminis.elastic.document.DocumentService;
 import eu.luminis.elastic.document.IndexRequest;
 import eu.luminis.elastic.index.IndexService;
 import eu.luminis.elastic.search.SearchService;
+import io.academic.entity.Article;
+import io.academic.entity.ArticleRepository;
 import io.academic.entity.OaiRecord;
 import io.academic.entity.OaiRecordRepository;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.openarchives.oai._2.MetadataType;
 import org.openarchives.oai._2.RecordType;
 import org.slf4j.Logger;
@@ -26,11 +34,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -47,7 +51,13 @@ public class OaiService {
     private OaiRecordRepository oaiRecordRepository;
 
     @Autowired
+    private ArticleRepository articleRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private DcParseService dcParseService;
 
 
     RestClient restClient = RestClient.builder(
@@ -61,6 +71,7 @@ public class OaiService {
     private  DocumentService documentService = null;
     private  IndexService indexService = null;
     private  SearchService searchService = null;
+    private IndexRequest request;
 
     @Autowired
     public OaiService(DocumentService documentService, IndexService indexService, SearchService searchService) {
@@ -70,11 +81,12 @@ public class OaiService {
         this.searchService = searchService;
     }
 
-    public String elasticSave(OaiRecord oaiRecord) {
-        IndexRequest request = new IndexRequest(INDEX, TYPE).setEntity(oaiRecord);
+    public String elasticSave(Article article) {
+        IndexRequest request = new IndexRequest(INDEX, TYPE).setEntity(article);
 
-        if (oaiRecord.getId() != null) {
-            request.setId(String.valueOf(oaiRecord.getId()));
+
+        if (article.getId() != null) {
+            request.setId(String.valueOf(article.getId()));
         }
 
         return documentService.index(request);
@@ -87,20 +99,41 @@ public class OaiService {
     public void saveRecords(List<RecordType> recordTypes) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<OaiRecord> oaiRecords = new ArrayList<>();
+        List<Article> articles = new ArrayList<>();
+        JSONParser parser = new JSONParser();
         recordTypes.forEach((recordType) -> {
             OaiRecord oaiRecord = new OaiRecord();
             oaiRecord.setSpec(recordType.getHeader().getSetSpec().get(0));
             oaiRecord.setIdentifier(recordType.getHeader().getIdentifier());
             oaiRecord.setDatestamp(parseDateTime(recordType.getHeader().getDatestamp()));
-            oaiRecord.setDc(marshallDc(recordType.getMetadata()));
+            String parsedDc="";
+            try {
+                 parsedDc = dcParseService.parseRecordString((JSONObject) parser.parse( marshallDc(recordType.getMetadata())));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            oaiRecord.setDc(parsedDc);
+
             oaiRecord.setState(0);
             oaiRecords.add(oaiRecord);
 
-            elasticSave(oaiRecord);
+            String[] parts = parsedDc.split(";;");
+            Article article = new Article();
+            article.setTitle(parts[0].split("::")[1]);
+            article.setAuthors(parts[1].split("::")[1]);
+            article.setKeywords(parts[2].split("::")[1]);
+            article.setBody(parts[3].split("::")[1]);
+            article.setDc(parsedDc);
+            articles.add(article);
+
+            elasticSave(article);
         });
 
         oaiRecordRepository.save(oaiRecords);
         log.info("Saved {} OAI record, time {}ms", oaiRecords.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        articleRepository.save(articles);
+        log.info("Saved {} Articles, time {}ms", articles.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     @Timed
@@ -125,18 +158,23 @@ public class OaiService {
 
 
     public String search(String q) throws IOException {
-        Map<String, String> paramMap = new HashMap<String, String>();
-        String query = "dc:"+q;
-        paramMap.put("q", query);
-        paramMap.put("pretty", "true");
+        HttpEntity entity1 = new NStringEntity(
+                "{\n" +
+                        "    \"query\" : {\n" +
+                        "    \"match\": { \"dc\":\""+q+"\"} \n" +
+                        "}, \n"+
+                        "    \"sort\" : [\n" +
+                        "    {\"title.keyword\": { \"order\":\"desc\"}} \n" +
+                        "], \n"+
+                        "\"_source\":\"title\""+
+                        "}"
+                , ContentType.APPLICATION_JSON);
 
-        Response response = restClient.performRequest("GET", "/harvester/_search",
-                paramMap);
+        Response response = restClient.performRequest("GET", "/harvester/_search", Collections.singletonMap("pretty", "true"),
+                entity1);
         String result =  ( EntityUtils.toString(response.getEntity()));
-
         System.out.println(result);
-        System.out.println("Host -" + response.getHost() );
-        System.out.println("RequestLine -"+ response.getRequestLine() );
+
         return "<pre>"+result+"</pre>"; //pre tag for json, otherwise it didnt show pretty in browser
 
     }
