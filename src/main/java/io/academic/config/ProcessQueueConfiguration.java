@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 @Configuration
 public class ProcessQueueConfiguration {

@@ -15,9 +15,9 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @Scope("prototype")
-public class UrlProcessor implements Runnable {
+public class DcProcessor implements Runnable {
 
-    private Logger log = LoggerFactory.getLogger(UrlProcessor.class);
+    private Logger log = LoggerFactory.getLogger(DcProcessor.class);
 
     @Autowired
     private UrlFetchService urlFetchService;
@@ -26,12 +26,9 @@ public class UrlProcessor implements Runnable {
     @Qualifier("urlQueue")
     private ArrayBlockingQueue<String> urlQueue;
 
-
     public boolean submit(String url) throws InterruptedException {
-        log.info("       called url (in UrlProcessor): "+url);
         return urlQueue.offer(url, 10, TimeUnit.SECONDS);
     }
-
 
     public void run() {
         log.info("Starting to run URL Processor");

@@ -3,11 +3,19 @@ package io.academic.service;
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Stopwatch;
+import com.google.gson.JsonObject;
+import io.academic.dao.OaiDao;
+import io.academic.entity.OaiRecord;
+import io.academic.entity.OaiRecordRepository;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.openarchives.oai._2.ListRecordsType;
 import org.openarchives.oai._2.OAIPMHtype;
 import org.openarchives.oai._2.RecordType;
@@ -28,7 +36,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class UrlFetchService {
+public class DcParseService {
 
     private Logger log = LoggerFactory.getLogger(UrlProcessor.class);
 
@@ -40,12 +48,14 @@ public class UrlFetchService {
     private ArrayBlockingQueue<List<RecordType>> recordListQueue;
 
     @Resource
-    @Qualifier("urlQueue")
+    @Qualifier("dcQueue")
     private ArrayBlockingQueue<String> urlQueue;
+
+
 
     @Timed
     @ExceptionMetered
-    public void fetchListRecords(String url) throws IOException, URISyntaxException, InterruptedException {
+    public void dcParseRecord(String url) throws IOException, URISyntaxException, InterruptedException {
         Stopwatch stopwatch = Stopwatch.createStarted();
         HttpGet httpGet = new HttpGet(url);
         try (CloseableHttpClient closeableHttpClient = HttpClients.createDefault()) {
@@ -66,6 +76,46 @@ public class UrlFetchService {
             }
         }
         log.info("fetchListRecords() took {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    }
+
+    public String parseRecordString(JSONObject jsonObject) throws ParseException {
+        String dc="";
+        JsonObject jDc = new JsonObject();
+        //we have 3 layer, outer encapsulates inner and inner encapsulates cell
+        if (null != jsonObject.get("any")) {
+            JSONObject j = (JSONObject) jsonObject.get("any");
+            JSONObject jOuterValue = (JSONObject) j.get("value");
+            JSONArray jOuterTitleOrCreatorOrSubject = (JSONArray) jOuterValue.get("titleOrCreatorOrSubject");
+
+            String previousName=" ", previousValue=" ";
+            for (int i = 0; i < jOuterTitleOrCreatorOrSubject.size(); i++) {
+
+                JSONObject inner = (JSONObject) jOuterTitleOrCreatorOrSubject.get(i);
+                JSONObject innerValue = (JSONObject) inner.get("value");
+                String innerName = (String) inner.get("name");
+                String cell = (String) innerValue.get("value");
+
+                String[] parts = innerName.split("/");
+
+                parts[6]=parts[6].substring(1);
+                if (parts[6].equals(previousName))
+                {
+                    dc+=", "+cell.trim();
+                }
+                else
+                {
+                    if (dc.equals("")) {
+                        dc = parts[6] + ":: " + cell.trim();
+                    }
+                    else {
+                        dc += ";; \n" + parts[6] + ":: " + cell.trim();
+                    }
+                }
+                previousName = parts[6];
+            }
+
+        }
+        return dc;
     }
 
 }
