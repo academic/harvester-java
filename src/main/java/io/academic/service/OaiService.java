@@ -193,6 +193,28 @@ public class OaiService {
 
     }
 
+    public String searchForm(String q) throws IOException {
+
+        SearchRequest searchRequest = new SearchRequest("harvester");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.termQuery("dc",q));
+        searchSourceBuilder.sort(new FieldSortBuilder("title.keyword").order(SortOrder.DESC));
+        searchSourceBuilder.fetchSource("title","");
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = restClient.search(searchRequest);
+        String result = searchResponse.toString();
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonParser jp = new JsonParser();
+        JsonElement je = jp.parse(result);
+        String prettyJsonString = gson.toJson(je);
+
+        System.out.println(prettyJsonString);
+
+        return prettyJsonString; //pre tag for json, otherwise it didnt show pretty in browser
+
+    }
+
     public String getAll() throws IOException {
 
 
