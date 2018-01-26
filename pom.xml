@@ -87,12 +87,6 @@
             <version>4.5.2</version>
         </dependency>
 
-        <dependency>
-            <groupId>de.dnb</groupId>
-            <artifactId>oaiharvester</artifactId>
-            <version>3.0.0</version>
-        </dependency>
-
 		<dependency>
 			<groupId>eu.luminis</groupId>
 			<artifactId>elastic-rest-spring-wrapper</artifactId>
@@ -115,13 +109,6 @@
 			<artifactId>elasticsearch-rest-high-level-client</artifactId>
 			<version>6.1.1</version>
 		</dependency>
-
-
-		<dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>1.9.2</version>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

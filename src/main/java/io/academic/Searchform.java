@@ -1,10 +1,10 @@
-package io.academic.controller;
+package io.academic;
 
 public class Searchform {
 
 
     private String value;
-    private String result="simdilik bos";
+    private String result;
 
     public String getValue() {
         return value;

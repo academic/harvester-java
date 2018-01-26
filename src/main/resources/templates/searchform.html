@@ -1,11 +1,11 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Getting Started: Handling Form Submission</title>
+    <title>OAI Harvester Search Form</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
-<h1>Form</h1>
+<h1>OAI Harvester Search Form</h1>
 <form action="#" th:action="@{/searchform}" th:object="${searchForm}" method="post">
     <p>Search: <input type="text" th:field="*{value}" /></p>
     <p><input type="submit" value="Submit" /> <input type="reset" value="Reset" /></p>

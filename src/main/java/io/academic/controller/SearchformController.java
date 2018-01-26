@@ -1,6 +1,7 @@
 package io.academic.controller;
 
 
+import io.academic.Searchform;
 import io.academic.service.OaiService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,7 +22,6 @@ public class SearchformController {
 
     @GetMapping("/searchform")
     public String searchForm(Model model)  {
-        System.out.println("form called");
         model.addAttribute("searchForm", new Searchform());
         return "searchform";
     }

@@ -4,9 +4,7 @@ import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Stopwatch;
 import com.google.gson.JsonObject;
-import io.academic.dao.OaiDao;
-import io.academic.entity.OaiRecord;
-import io.academic.entity.OaiRecordRepository;
+import io.academic.dao.DcDao;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -14,7 +12,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.openarchives.oai._2.ListRecordsType;
 import org.openarchives.oai._2.OAIPMHtype;
@@ -78,7 +75,7 @@ public class DcParseService {
         log.info("fetchListRecords() took {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
-    public String parseRecordString(JSONObject jsonObject) throws ParseException {
+    public DcDao parseRecordString(JSONObject jsonObject) throws ParseException {
         String dc="";
         JsonObject jDc = new JsonObject();
         //we have 3 layer, outer encapsulates inner and inner encapsulates cell
@@ -115,7 +112,7 @@ public class DcParseService {
             }
 
         }
-        return dc;
+        return new DcDao(dc);
     }
 
 }

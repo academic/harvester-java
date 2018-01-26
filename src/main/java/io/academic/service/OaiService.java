@@ -13,6 +13,7 @@ import eu.luminis.elastic.document.DocumentService;
 import eu.luminis.elastic.document.IndexRequest;
 import eu.luminis.elastic.index.IndexService;
 import eu.luminis.elastic.search.SearchService;
+import io.academic.dao.DcDao;
 import io.academic.entity.Article;
 import io.academic.entity.ArticleRepository;
 import io.academic.entity.OaiRecord;
@@ -120,24 +121,25 @@ public class OaiService {
             oaiRecord.setSpec(recordType.getHeader().getSetSpec().get(0));
             oaiRecord.setIdentifier(recordType.getHeader().getIdentifier());
             oaiRecord.setDatestamp(parseDateTime(recordType.getHeader().getDatestamp()));
-            String parsedDc="";
+            DcDao parsedDc = null;
             try {
-                 parsedDc = dcParseService.parseRecordString((JSONObject) parser.parse( marshallDc(recordType.getMetadata())));
+                parsedDc = dcParseService.parseRecordString((JSONObject) parser.parse( marshallDc(recordType.getMetadata())));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            oaiRecord.setDc(parsedDc);
+
+            oaiRecord.setDc(parsedDc.getDc());
 
             oaiRecord.setState(0);
             oaiRecords.add(oaiRecord);
 
-            String[] parts = parsedDc.split(";;");
+            String[] parts = parsedDc.getDc().split(";;");
             Article article = new Article();
             article.setTitle(parts[0].split("::")[1]);
             article.setAuthors(parts[1].split("::")[1]);
             article.setKeywords(parts[2].split("::")[1]);
             article.setBody(parts[3].split("::")[1]);
-            article.setDc(parsedDc);
+            article.setDc(parsedDc.getDc());
             articles.add(article);
 
             elasticSave(article);
