@@ -1,6 +1,6 @@
-package io.academic;
+package io.academic.dao;
 
-public class Searchform {
+public class SearchDao {
 
 
     private String value;

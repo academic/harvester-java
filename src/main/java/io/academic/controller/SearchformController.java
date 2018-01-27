@@ -1,11 +1,13 @@
 package io.academic.controller;
 
 
-import io.academic.Searchform;
+import io.academic.dao.SearchDao;
 import io.academic.service.OaiService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.io.IOException;
 
@@ -22,13 +24,13 @@ public class SearchformController {
 
     @GetMapping("/searchform")
     public String searchForm(Model model)  {
-        model.addAttribute("searchForm", new Searchform());
+        model.addAttribute("searchForm", new SearchDao());
         return "searchform";
     }
 
     @PostMapping("/searchform")
-    public String greetingSubmit(@ModelAttribute Searchform searchform) throws IOException {
-        searchform.setResult(service.searchForm(searchform.getValue()));
+    public String greetingSubmit(@ModelAttribute SearchDao searchDao) throws IOException {
+        searchDao.setResult(service.searchForm(searchDao.getValue()));
         return "searchresult";
     }
 

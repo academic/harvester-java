@@ -6,8 +6,8 @@
 </head>
 <body>
 <h1>Result</h1>
-<p th:text="'value: ' + ${searchform.value}" />
-<pre th:utext="${searchform.result}"></pre>
-<a href="/searchform">Submit another message</a>
+<p th:text="'value: ' + ${searchDao.value}"/>
+<pre th:utext="${searchDao.result}"></pre>
+<a href="/searchDao">Submit another message</a>
 </body>
 </html>
