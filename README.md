@@ -22,13 +22,13 @@ The correct software architecture for OAI harvesters
 
 - [x] PostgreSQL OAI recorder
 
-- [ ] Dublin Core Parser
+- [x] Dublin Core Parser
 
-- [ ] Elastic Indexer
+- [x] Elastic Indexer
 
 ###### endpoint:
 
-- [ ] REST Search api
+- [x] REST Search api
 
 - [ ] Workers Triggers
 
