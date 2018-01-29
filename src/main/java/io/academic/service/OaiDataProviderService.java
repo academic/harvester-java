@@ -73,7 +73,7 @@ public class OaiDataProviderService {
     }
 
     //this method add some small rule to the url and by the help of it we did not crawl all data, we  crawl only limited data between these dates
-    //do not forget delete before deployment
+    //do not forget delete before deployment date on the rules will be deleted
     public String addRule(String url)
     {
 //        String rule = "?metadataPrefix=oai_dc&verb=ListRecords";

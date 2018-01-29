@@ -168,13 +168,11 @@ public class OaiService {
     }
 
     private LocalDateTime parseDateTime(String string) {
-//        System.out.println(string);
         LocalDateTime ldt;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd['T'HH:mm:ss'Z']");
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd");
         if (string.length()<=10)
         {
-            ldt = LocalDate.parse(string,formatter).atStartOfDay();
+            ldt = LocalDate.parse(string,formatter).atStartOfDay(); // we can support yyyy-MM-dd format
         }
         else
         {
