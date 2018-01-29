@@ -58,6 +58,12 @@ public class UrlFetchService {
 
             if (list.getResumptionToken() != null && list.getResumptionToken().getValue().length() > 0) {
                 URIBuilder uriBuilder = new URIBuilder(url);
+                System.out.println("uri builder : "+uriBuilder.toString());
+                System.out.println(uriBuilder.getHost());
+                System.out.println(uriBuilder.getPath());
+                uriBuilder.clearParameters(); // wee need to clean pramaeters
+                System.out.println(uriBuilder.toString());
+                uriBuilder.setParameter("verb","ListRecords");
                 uriBuilder.setParameter("resumptionToken", list.getResumptionToken().getValue());
                 url = uriBuilder.build().toString();
 

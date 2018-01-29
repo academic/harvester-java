@@ -19,9 +19,11 @@ public class Article extends AbstractAuditingEntity {
     private String body;
 
     @Column
+    @Type(type = "text")
     private String keywords;
 
     @Column
+    @Type(type = "text")
     private String authors;
 
     @Column

@@ -6,7 +6,7 @@
 </head>
 <body>
 <h1>OAI Harvester Search Form</h1>
-<form action="#" th:action="@{/searchDao}" th:object="${searchForm}" method="post">
+<form action="#" th:action="@{/searchform}" th:object="${searchForm}" method="post">
     <p>Search: <input type="text" th:field="*{value}" /></p>
     <p><input type="submit" value="Submit" /> <input type="reset" value="Reset" /></p>
 </form>

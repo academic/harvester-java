@@ -30,6 +30,9 @@ public class SearchformController {
 
     @PostMapping("/searchform")
     public String greetingSubmit(@ModelAttribute SearchDao searchDao) throws IOException {
+        System.out.println("inside post");
+        System.out.println(searchDao.getValue());
+        System.out.println(service.searchForm(searchDao.getValue()));
         searchDao.setResult(service.searchForm(searchDao.getValue()));
         return "searchresult";
     }

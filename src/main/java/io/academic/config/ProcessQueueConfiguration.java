@@ -1,5 +1,7 @@
 package io.academic.config;
 
+import io.academic.dao.OaiDataProviderDao;
+import io.academic.entity.OaiDataProvider;
 import org.openarchives.oai._2.RecordType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +14,11 @@ public class ProcessQueueConfiguration {
 
     @Bean
     ArrayBlockingQueue<List<RecordType>> recordListQueue() {
+        return new ArrayBlockingQueue<>(20);
+    }
+
+    @Bean
+    ArrayBlockingQueue<OaiDataProviderDao> oaiDataProviderQueue() {
         return new ArrayBlockingQueue<>(20);
     }
 
