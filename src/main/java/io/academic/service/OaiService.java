@@ -47,6 +47,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -167,8 +168,18 @@ public class OaiService {
     }
 
     private LocalDateTime parseDateTime(String string) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        return LocalDateTime.parse(string, formatter);
+        LocalDateTime ldt;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd['T'HH:mm:ss'Z']");
+        if (string.length()<=10)
+        {
+            ldt = LocalDate.parse(string,formatter).atStartOfDay(); // we can support yyyy-MM-dd format
+        }
+        else
+        {
+            ldt = LocalDateTime.parse(string, formatter);
+        }
+        return ldt;
+//        return LocalDateTime.parse(string, formatter);
     }
 
 

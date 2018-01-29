@@ -1,0 +1,14 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>OAI Data Provider Adding Form</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>OAI Data Provider Adding Form</h1>
+<form action="#" th:action="@{/dataproviderform}" th:object="${dataproviderForm}" method="post">
+    <p>Search: <input type="text" th:field="*{value}" /></p>
+    <p><input type="submit" value="Add" /> <input type="reset" value="Reset" /></p>
+</form>
+</body>
+</html>
