@@ -1,0 +1,13 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Search Result</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Result</h1>
+<p th:text="'value: ' + ${searchDao.value}"/>
+<pre th:utext="${searchDao.result}"></pre>
+<a href="/searchDao">Submit another message</a>
+</body>
+</html>
