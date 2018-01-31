@@ -1,6 +1,8 @@
 package io.academic.dao;
 
-public class OaiDataProviderDao {
+import io.academic.entity.OaiDataProviderRepository;
+
+public class OaiDataProviderDao  {
 
     private String name;
     private String url;
@@ -32,6 +34,19 @@ public class OaiDataProviderDao {
 
     public String getIdentifier() {
         return identifier;
+    }
+
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
 

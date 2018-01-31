@@ -37,6 +37,11 @@ public class ProcessorService {
 
 //        oaiDataProviderService.queue(new OaiDataProvider("Acta Medica Anatolia","http://dergipark.gov.tr/api/public/oai/","dergipark.ulakbim.gov.tr"  ));
 //        oaiDataProviderService.queue(new OaiDataProvider("http://export.arxiv.org/oai2"));
+        try {
+            oaiService.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -44,10 +49,6 @@ public class ProcessorService {
         return urlProcessor.submit(url);
     }
 
-//    public boolean submitDataProvider(OaiDataProviderDao oai) throws InterruptedException {
-//       return oaiDataProviderProcessor.submit(oai);
-//
-//    }
 
 
 
