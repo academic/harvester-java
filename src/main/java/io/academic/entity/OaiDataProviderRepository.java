@@ -1,5 +1,8 @@
 package io.academic.entity;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
@@ -10,6 +13,6 @@ public interface OaiDataProviderRepository extends PagingAndSortingRepository<Oa
 
     List<OaiDataProvider> findByName(String name);
 
-
-
+    @Override
+    Page<OaiDataProvider> findAll(Pageable pageable);
 }
