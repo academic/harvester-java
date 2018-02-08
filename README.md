@@ -30,13 +30,13 @@ The correct software architecture for OAI harvesters
 
 - [x] REST Search api
 
-- [ ] Workers Triggers
+- [x] Workers Triggers
 
-- [ ] Cron job api
+- [x] Cron job api
 
 ###### management:
 
-- [ ] Admin UI
+- [x] Admin UI
 
 #### Roadmap
 
