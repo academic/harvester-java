@@ -2,6 +2,7 @@ package io.academic.controller;
 
 
 import io.academic.dao.SearchDao;
+import io.academic.service.AcademicSearchService;
 import io.academic.service.OaiService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,9 +16,9 @@ import java.io.IOException;
 @Controller
 public class SearchformController {
 
-    private final OaiService service;
+    private final AcademicSearchService service;
 
-    public SearchformController(OaiService service) {
+    public SearchformController(AcademicSearchService service) {
         this.service = service;
     }
 

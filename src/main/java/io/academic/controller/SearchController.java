@@ -1,8 +1,8 @@
 package io.academic.controller;
 
+import io.academic.service.AcademicSearchService;
 import io.academic.service.OaiService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,10 +16,10 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @RestController
 @RequestMapping("/api/elastic")
 public class SearchController {
-    private final OaiService service;
+    private final AcademicSearchService service;
 
     @Autowired
-    public SearchController(OaiService service) {
+    public SearchController(AcademicSearchService service) {
         this.service = service;
     }
 
