@@ -36,16 +36,22 @@ public class AcademicSearchService {
         searchRequest.source(searchSourceBuilder);
         SearchResponse searchResponse = oaiService.getRestClient().search(searchRequest);
         String result = searchResponse.toString();
+        String jsonString = toJson(result);
 
+
+        System.out.println(jsonString);
+
+        return jsonString; //pre tag for json, otherwise it didnt show pretty in browser
+
+    }
+
+    //converts normal string to pretty Json String
+    public String toJson(String nonJsonString){
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JsonParser jp = new JsonParser();
-        JsonElement je = jp.parse(result);
-        String prettyJsonString = gson.toJson(je);
-
-        System.out.println(prettyJsonString);
-
-        return prettyJsonString; //pre tag for json, otherwise it didnt show pretty in browser
-
+        JsonElement je = jp.parse(nonJsonString);
+        String jsonString = gson.toJson(je);
+        return jsonString;
     }
 
     public String searchPretty(String q) throws IOException {
@@ -76,10 +82,7 @@ public class AcademicSearchService {
         String scrollId = searchResponse.getScrollId();
         SearchHit[] searchHits = searchResponse.getHits().getHits();
         String result="";
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JsonParser jp = new JsonParser();
-        JsonElement je ;
-        String prettyJsonString ;
+
         while (searchHits != null && searchHits.length > 0) {
             SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollId);
             scrollRequest.scroll(scroll);
@@ -87,13 +90,7 @@ public class AcademicSearchService {
             scrollId = searchResponse.getScrollId();
             searchHits = searchResponse.getHits().getHits();
 
-
-            je = jp.parse(searchResponse.toString());
-            prettyJsonString = gson.toJson(je);
-            result+=prettyJsonString;
-
-
-
+            result+=toJson(searchResponse.toString());
         }
 
         ClearScrollRequest clearScrollRequest = new ClearScrollRequest();

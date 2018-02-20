@@ -178,7 +178,7 @@ public class OaiService {
 //        return LocalDateTime.parse(string, formatter);
     }
 
-    
+
     public void delete() throws IOException {
 
         //TODO:check if there is any indices with that name
