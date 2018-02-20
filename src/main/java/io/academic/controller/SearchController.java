@@ -25,7 +25,7 @@ public class SearchController {
 
     @RequestMapping(method = GET, value = "/_search")
     public String search(@RequestParam(value= "q") String term) throws IOException {
-        return service.search(term);
+        return service.searchPretty(term);
     }
 
     @RequestMapping(method = GET)

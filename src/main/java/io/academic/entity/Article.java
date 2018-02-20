@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+
 @Table(name = "articles")
 @Entity
 public class Article extends AbstractAuditingEntity {

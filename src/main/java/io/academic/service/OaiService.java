@@ -14,18 +14,10 @@ import eu.luminis.elastic.document.IndexRequest;
 import eu.luminis.elastic.index.IndexService;
 import eu.luminis.elastic.search.SearchService;
 import io.academic.dao.DcDao;
-import io.academic.entity.Article;
-import io.academic.entity.ArticleRepository;
-import io.academic.entity.OaiRecord;
-import io.academic.entity.OaiRecordRepository;
-import org.apache.http.HttpEntity;
+import io.academic.entity.*;
 import org.apache.http.HttpHost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.util.EntityUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.search.*;
-import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.TimeValue;
@@ -202,29 +194,20 @@ public class OaiService {
 
         System.out.println(prettyJsonString);
 
-        return "<pre>"+prettyJsonString+"</pre>"; //pre tag for json, otherwise it didnt show pretty in browser
+        return prettyJsonString; //pre tag for json, otherwise it didnt show pretty in browser
+
+    }
+
+    public String searchPretty(String q) throws IOException {
+
+
+        return "<pre>"+search(q)+"</pre>"; //pre tag for json, otherwise it didnt show pretty in browser
 
     }
 
     public String searchForm(String q) throws IOException {
 
-        SearchRequest searchRequest = new SearchRequest("harvester");
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.termQuery("dc",q));
-        searchSourceBuilder.sort(new FieldSortBuilder("title.keyword").order(SortOrder.DESC));
-        searchSourceBuilder.fetchSource("title","");
-        searchRequest.source(searchSourceBuilder);
-        SearchResponse searchResponse = restClient.search(searchRequest);
-        String result = searchResponse.toString();
-
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JsonParser jp = new JsonParser();
-        JsonElement je = jp.parse(result);
-        String prettyJsonString = gson.toJson(je);
-
-        System.out.println(prettyJsonString);
-
-        return prettyJsonString; //pre tag for json, otherwise it didnt show pretty in browser
+        return search(q); //pre tag for json, otherwise it didnt show pretty in browser
 
     }
 
@@ -274,7 +257,7 @@ public class OaiService {
 
     public void delete() throws IOException {
 
-
+        //TODO:check if there is any indices with that name
         DeleteIndexRequest request = new DeleteIndexRequest("harvester");
         restClient.indices().deleteIndex(request);
 
