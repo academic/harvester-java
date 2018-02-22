@@ -27,7 +27,7 @@ public class SearchController {
 
     @RequestMapping(method = GET)
     public String allData(@RequestParam(defaultValue = "") String query) throws IOException {
-        return service.getAll();
+        return service.getAllPretty();
     }
 
     //search doing by article criterias such as authors,body,date, keywords, publisher, title

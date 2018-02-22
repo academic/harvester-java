@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+
 @Service
 public class AcademicSearchService {
 
@@ -29,75 +31,91 @@ public class AcademicSearchService {
     public String search(String q) throws IOException {
 
         SearchRequest searchRequest = new SearchRequest("harvester");
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.termQuery("dc",q));
-        searchSourceBuilder.sort(new FieldSortBuilder("title.keyword").order(SortOrder.DESC));
-        searchSourceBuilder.fetchSource("title","");
-        searchRequest.source(searchSourceBuilder);
+        searchRequest.source(buildSource("term","dc",q,false));
+
+        //this values are necessary if we need scrollable results (in other words if our result have more than 10 hits)
+        final Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1));
+        searchRequest.scroll(scroll);
+
         SearchResponse searchResponse = oaiService.getRestClient().search(searchRequest);
-        String result = searchResponse.toString();
-        String jsonString = toJson(result);
+        String result = scrollableSearch(searchResponse,scroll);
 
-
-        System.out.println(jsonString);
-
-        return jsonString; //pre tag for json, otherwise it didnt show pretty in browser
+        return result;
 
     }
+
 
     public String searchBy(String q, String criteria) throws IOException {
 
         SearchRequest searchRequest = new SearchRequest("harvester");
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.termQuery(criteria,q));
-//        searchSourceBuilder.sort(new FieldSortBuilder("title.keyword").order(SortOrder.DESC));
-//        searchSourceBuilder.fetchSource("title","");
-        searchRequest.source(searchSourceBuilder);
+        searchRequest.source(buildSource("match",criteria,q,false));
+
+        //this values are necessary if we need scrollable results (in other words if our result have more than 10 hits)
+        final Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1));
+        searchRequest.scroll(scroll);
+
         SearchResponse searchResponse = oaiService.getRestClient().search(searchRequest);
-        String result = searchResponse.toString();
-        String jsonString = toJson(result);
+        String result = scrollableSearch(searchResponse,scroll);
 
+//        System.out.println(result);
 
-        System.out.println(jsonString);
-
-        return jsonString; //pre tag for json, otherwise it didnt show pretty in browser
+        return result;
 
     }
 
-    public String searchByType(String q) throws IOException
-    {
-        return searchBy(q,"type");
+
+    public String getAll() throws IOException {
+
+        SearchRequest searchRequest = new SearchRequest("harvester");
+        searchRequest.source(buildSource("matchAll","","",true));
+
+        //this values are necessary if we need scrollable results (in other words if our result have more than 10 hits)
+        final Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1));
+        searchRequest.scroll(scroll);
+
+        SearchResponse searchResponse = oaiService.getRestClient().search(searchRequest);
+        String result = scrollableSearch(searchResponse,scroll);
+
+//        System.out.println(result);
+
+        return result;
     }
 
-    public String searchByJournal(String q) throws IOException
-    {
-        return searchBy(q,"publisher");
+
+
+    public String searchPretty(String q) throws IOException {
+
+
+        return "<pre>"+search(q)+"</pre>"; //pre tag for json, otherwise it didnt show pretty in browser
+
     }
 
-    public String searchByDate(String q) throws IOException
-    {
-        return searchBy(q,"date");
+    public String getAllPretty() throws IOException {
+
+
+        return "<pre>"+getAll()+"</pre>"; //pre tag for json, otherwise it didnt show pretty in browser
+
     }
 
-    public String searchByAuthor(String q) throws IOException
-    {
-        return searchBy(q,"author");
+    public String searchPrettyByCriteria(String q, String criteria) throws IOException {
+
+        return "<pre>"+searchBy(q,criteria)+"</pre>"; //pre tag for json, otherwise it didnt show pretty in browser
+
     }
 
-    public String searchByTitle(String q) throws IOException
-    {
-        return searchBy(q,"title");
+    public String searchForm(String q) throws IOException {
+
+        return search(q);
+
     }
 
-    public String searchByKeyword(String q) throws IOException
-    {
-        return searchBy(q,"keyword");
+    public String searchFormByCriteria(String q, String criteria) throws IOException {
+
+        return searchBy(q,criteria);
+
     }
 
-    public String searchByAbstract(String q) throws IOException
-    {
-        return searchBy(q,"body");
-    }
+    //Helper methods
 
     //converts normal string to pretty Json String
     public String toJson(String nonJsonString){
@@ -108,65 +126,59 @@ public class AcademicSearchService {
         return jsonString;
     }
 
-    public String searchPretty(String q) throws IOException {
 
 
-        return "<pre>"+search(q)+"</pre>"; //pre tag for json, otherwise it didnt show pretty in browser
-
-    }
-
-    public String searchPrettyByCriteria(String q, String criteria) throws IOException {
-
-        System.out.println(q);
-        System.out.println(criteria);
-        return "<pre>"+searchBy(q,criteria)+"</pre>"; //pre tag for json, otherwise it didnt show pretty in browser
-
-    }
-
-    public String searchForm(String q) throws IOException {
-
-        return search(q); //pre tag for json, otherwise it didnt show pretty in browser
-
-    }
-
-    public String searchFormByCriteria(String q, String criteria) throws IOException {
-
-        return searchBy(q,criteria); //pre tag for json, otherwise it didnt show pretty in browser
-
-    }
-
-    public String getAll() throws IOException {
-
-
-        final Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1L));
-
-        SearchRequest searchRequest = new SearchRequest("harvester");
-        searchRequest.scroll(scroll);
+    public SearchSourceBuilder buildSource(String queryType, String criteria, String q, Boolean showAllFields){
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-        searchRequest.source(searchSourceBuilder);
 
-        SearchResponse searchResponse = oaiService.getRestClient().search(searchRequest);
+        if (queryType.equals("match"))
+        {
+            searchSourceBuilder.query(matchQuery(criteria,q));
+        }
+        else if (queryType.equals("term"))
+        {
+            searchSourceBuilder.query(QueryBuilders.termQuery(criteria,q));
+        }
+        else
+        {
+            searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+        }
+        //we are allways sorting according to title, if it is needed this can be changed to related criteria
+        searchSourceBuilder.sort(new FieldSortBuilder("title.keyword").order(SortOrder.DESC));
+        if (!showAllFields)
+        {
+            String[] includeFields = new String[] {"title",criteria};
+            String[] excludeFields = new String[] {""};
+            searchSourceBuilder.fetchSource(includeFields,excludeFields);
+            searchSourceBuilder.fetchSource(true);
+        }
+
+        return searchSourceBuilder;
+    }
+
+    public String scrollableSearch(SearchResponse searchResponse, Scroll scroll) throws IOException {
         String scrollId = searchResponse.getScrollId();
         SearchHit[] searchHits = searchResponse.getHits().getHits();
         String result="";
 
+        //right now we are returning all results by concatenating results so it is not an elegant solution
         while (searchHits != null && searchHits.length > 0) {
+            result+=toJson(searchResponse.toString());
+
             SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollId);
             scrollRequest.scroll(scroll);
             searchResponse = oaiService.getRestClient().searchScroll(scrollRequest);
             scrollId = searchResponse.getScrollId();
             searchHits = searchResponse.getHits().getHits();
 
-            result+=toJson(searchResponse.toString());
         }
 
         ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
         clearScrollRequest.addScrollId(scrollId);
         ClearScrollResponse clearScrollResponse = oaiService.getRestClient().clearScroll(clearScrollRequest);
         boolean succeeded = clearScrollResponse.isSucceeded();
-
-
-        return "<pre>"+result+"</pre>"; //pre tag for json, otherwise it didnt show pretty in browser
+        return result;
     }
+
+
 }
