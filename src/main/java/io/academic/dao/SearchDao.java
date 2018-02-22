@@ -4,6 +4,7 @@ public class SearchDao {
 
 
     private String value;
+    private String criteria;
     private String result;
 
     public String getValue() {
@@ -14,6 +15,13 @@ public class SearchDao {
         this.value = value;
     }
 
+    public String getCriteria() {
+        return criteria;
+    }
+
+    public void setCriteria(String criteria) {
+        this.criteria = criteria;
+    }
 
     public String getResult() {
         return result;
