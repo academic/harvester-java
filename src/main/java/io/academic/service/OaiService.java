@@ -11,6 +11,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import eu.luminis.elastic.document.DocumentService;
 import eu.luminis.elastic.document.IndexRequest;
+import eu.luminis.elastic.document.UpdateRequest;
 import eu.luminis.elastic.index.IndexService;
 import eu.luminis.elastic.search.SearchService;
 import io.academic.dao.DcDao;
@@ -136,6 +137,9 @@ public class OaiService {
             article.setAuthors(parts[1].split("::")[1]);
             article.setKeywords(parts[2].split("::")[1]);
             article.setBody(parts[3].split("::")[1]);
+            article.setPublisher(parts[4].split("::")[1]);
+            article.setDate(parts[5].split("::")[1]);
+            article.setType(parts[6].split("::")[1]);
             article.setDc(parsedDc.getDc());
             articles.add(article);
 

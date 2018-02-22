@@ -31,48 +31,79 @@ public class Article extends AbstractAuditingEntity {
     @Type(type = "text")
     private String dc;
 
+    @Column
+    @Type(type = "text")
+    private String publisher;
+
+    @Column
+    @Type(type = "text")
+    private String date;
+
+    @Column
+    @Type(type = "text")
+    private String type;
+
     public String getTitle() {
         return title;
     }
 
-    public Article setTitle(String title) {
+    public void setTitle(String title) {
         this.title = title;
-        return this;
     }
 
     public String getBody() {
         return body;
     }
 
-    public Article setBody(String body) {
+    public void setBody(String body) {
         this.body = body;
-        return this;
     }
 
     public String getKeywords() {
         return keywords;
     }
 
-    public Article setKeywords(String keywords) {
+    public void setKeywords(String keywords) {
         this.keywords = keywords;
-        return this;
     }
 
     public String getAuthors() {
         return authors;
     }
 
-    public Article setAuthors(String authors) {
+    public void setAuthors(String authors) {
         this.authors = authors;
-        return this;
     }
 
     public String getDc() {
         return dc;
     }
 
-    public Article setDc(String dc) {
+    public void setDc(String dc) {
         this.dc = dc;
-        return this;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

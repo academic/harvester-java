@@ -45,6 +45,25 @@ public class AcademicSearchService {
 
     }
 
+    public String searchByType(String q) throws IOException {
+
+        SearchRequest searchRequest = new SearchRequest("harvester");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.termQuery("dc",q));
+        searchSourceBuilder.sort(new FieldSortBuilder("title.keyword").order(SortOrder.DESC));
+        searchSourceBuilder.fetchSource("title","");
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = oaiService.getRestClient().search(searchRequest);
+        String result = searchResponse.toString();
+        String jsonString = toJson(result);
+
+
+        System.out.println(jsonString);
+
+        return jsonString; //pre tag for json, otherwise it didnt show pretty in browser
+
+    }
+
     //converts normal string to pretty Json String
     public String toJson(String nonJsonString){
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
