@@ -45,13 +45,13 @@ public class AcademicSearchService {
 
     }
 
-    public String searchByType(String q) throws IOException {
+    public String searchBy(String q, String criteria) throws IOException {
 
         SearchRequest searchRequest = new SearchRequest("harvester");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.termQuery("dc",q));
-        searchSourceBuilder.sort(new FieldSortBuilder("title.keyword").order(SortOrder.DESC));
-        searchSourceBuilder.fetchSource("title","");
+        searchSourceBuilder.query(QueryBuilders.termQuery(criteria,q));
+//        searchSourceBuilder.sort(new FieldSortBuilder("title.keyword").order(SortOrder.DESC));
+//        searchSourceBuilder.fetchSource("title","");
         searchRequest.source(searchSourceBuilder);
         SearchResponse searchResponse = oaiService.getRestClient().search(searchRequest);
         String result = searchResponse.toString();
@@ -62,6 +62,41 @@ public class AcademicSearchService {
 
         return jsonString; //pre tag for json, otherwise it didnt show pretty in browser
 
+    }
+
+    public String searchByType(String q) throws IOException
+    {
+        return searchBy(q,"type");
+    }
+
+    public String searchByJournal(String q) throws IOException
+    {
+        return searchBy(q,"publisher");
+    }
+
+    public String searchByDate(String q) throws IOException
+    {
+        return searchBy(q,"date");
+    }
+
+    public String searchByAuthor(String q) throws IOException
+    {
+        return searchBy(q,"author");
+    }
+
+    public String searchByTitle(String q) throws IOException
+    {
+        return searchBy(q,"title");
+    }
+
+    public String searchByKeyword(String q) throws IOException
+    {
+        return searchBy(q,"keyword");
+    }
+
+    public String searchByAbstract(String q) throws IOException
+    {
+        return searchBy(q,"body");
     }
 
     //converts normal string to pretty Json String
@@ -80,9 +115,23 @@ public class AcademicSearchService {
 
     }
 
+    public String searchPrettyByCriteria(String q, String criteria) throws IOException {
+
+        System.out.println(q);
+        System.out.println(criteria);
+        return "<pre>"+searchBy(q,criteria)+"</pre>"; //pre tag for json, otherwise it didnt show pretty in browser
+
+    }
+
     public String searchForm(String q) throws IOException {
 
         return search(q); //pre tag for json, otherwise it didnt show pretty in browser
+
+    }
+
+    public String searchFormByCriteria(String q, String criteria) throws IOException {
+
+        return searchBy(q,criteria); //pre tag for json, otherwise it didnt show pretty in browser
 
     }
 

@@ -3,10 +3,7 @@ package io.academic.controller;
 import io.academic.service.AcademicSearchService;
 import io.academic.service.OaiService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -31,6 +28,12 @@ public class SearchController {
     @RequestMapping(method = GET)
     public String allData(@RequestParam(defaultValue = "") String query) throws IOException {
         return service.getAll();
+    }
+
+    //search doing by article criterias such as authors,body,date, keywords, publisher, title
+    @RequestMapping(method = GET, value = "/_search/{criteria}")
+    public @ResponseBody String searchByCriteria(@RequestParam(value= "q") String term, @PathVariable(value = "criteria") String criteria) throws IOException {
+        return service.searchPrettyByCriteria(term,criteria);
     }
 
 
