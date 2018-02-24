@@ -35,7 +35,7 @@ public class ProcessorService {
         taskExecutor.execute(recordTypeProcessor);
         taskExecutor.execute(urlProcessor);
 
-//        oaiDataProviderService.queue(new OaiDataProvider("Acta Medica Anatolia","http://dergipark.gov.tr/api/public/oai/","dergipark.ulakbim.gov.tr"  ));
+        oaiDataProviderService.queue(new OaiDataProvider("Acta Medica Anatolia","http://dergipark.gov.tr/api/public/oai/","dergipark.ulakbim.gov.tr"  ));
 //        oaiDataProviderService.queue(new OaiDataProvider("http://export.arxiv.org/oai2"));
         try {
             oaiService.delete();

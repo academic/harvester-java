@@ -9,6 +9,7 @@
 <body>
 <h1>Result</h1>
 <p th:text="'value: ' + ${searchDao.value}"/>
+<p th:text="'criteria: ' + ${searchDao.criteria}"/>
 <a href="/searchform">Search moooore</a>
 <pre th:utext="${searchDao.result}"></pre>
 <script src="webjars/bootstrap/4.0.0/js/bootstrap.min.js"></script>

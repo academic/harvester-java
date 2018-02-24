@@ -2,6 +2,7 @@ package io.academic.controller;
 
 
 import io.academic.dao.SearchDao;
+import io.academic.service.AcademicSearchService;
 import io.academic.service.OaiService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,9 +16,9 @@ import java.io.IOException;
 @Controller
 public class SearchformController {
 
-    private final OaiService service;
+    private final AcademicSearchService service;
 
-    public SearchformController(OaiService service) {
+    public SearchformController(AcademicSearchService service) {
         this.service = service;
     }
 
@@ -31,9 +32,20 @@ public class SearchformController {
     @PostMapping("/searchform")
     public String greetingSubmit(@ModelAttribute SearchDao searchDao) throws IOException {
         System.out.println("inside post");
-        System.out.println(searchDao.getValue());
-        System.out.println(service.searchForm(searchDao.getValue()));
-        searchDao.setResult(service.searchForm(searchDao.getValue()));
+        String value = searchDao.getValue();
+        String result = "";
+        String criteria = searchDao.getCriteria();
+        if (criteria.equals("all"))
+        {
+            result = service.searchForm(searchDao.getValue());
+        }
+        else
+        {
+            result = service.searchFormByCriteria(searchDao.getValue(),criteria);
+        }
+        System.out.println(value);
+        System.out.println(result);
+        searchDao.setResult(result);
         return "searchresult";
     }
 
