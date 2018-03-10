@@ -16,10 +16,16 @@ public class OaiDataProvider extends AbstractAuditingEntity {
 
     }
 
-    public OaiDataProvider(String name, String url, String identifier) {
+    public OaiDataProvider(String name, String url,String downloadUrl, String identifier) {
         this.name = name;
         this.url = url;
+        this.downloadUrl = downloadUrl;
         this.identifier = identifier;
+    }
+
+    public OaiDataProvider(String url,String downloadUrl) {
+        this.url = url;
+        this.downloadUrl = downloadUrl;
     }
 
     public OaiDataProvider(String url) {
@@ -31,6 +37,9 @@ public class OaiDataProvider extends AbstractAuditingEntity {
 
     @Column
     private String url;
+
+    @Column
+    private String downloadUrl;
 
     @Column
     private String identifier;
@@ -69,5 +78,12 @@ public class OaiDataProvider extends AbstractAuditingEntity {
         return this;
     }
 
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
+    }
 
 }
