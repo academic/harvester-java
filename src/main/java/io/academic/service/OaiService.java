@@ -147,9 +147,15 @@ public class OaiService {
             article.setPublisher(parts[4].split("::")[1]);
             article.setDate(parts[5].split("::")[1]);
             article.setType(parts[6].split("::")[1]);
+            if (parts.length>10)
+            {
+                String downlaodUrl = parts[10].split("::")[1];
+                article.setRelation(downlaodUrl);
+                article.setBase64(UrlPdftoBase64(downlaodUrl));
+            }
             article.setDc(parsedDc.getDc());
             article.setArticleIdentifier(parseIdentifier(oaiRecord.getIdentifier()));
-            article.setBase64(UrlPdftoBase64("http://dergipark.gov.tr/download/article-file/"+parseIdentifier(oaiRecord.getIdentifier())));
+
             articles.add(article);
 
             elasticSave(article);
@@ -179,6 +185,7 @@ public class OaiService {
     public String UrlPdftoBase64(String url) {
         URL oracle = null;
         String base64 = null;
+        System.out.println(url);
         try {
             oracle = new URL(url);
             URLConnection yc = oracle.openConnection();

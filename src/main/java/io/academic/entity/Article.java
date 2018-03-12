@@ -51,6 +51,10 @@ public class Article extends AbstractAuditingEntity {
     @Type(type = "text")
     private String articleIdentifier;
 
+    @Column
+    @Type(type = "text")
+    private String relation;
+
     public String getTitle() {
         return title;
     }
@@ -131,4 +135,11 @@ public class Article extends AbstractAuditingEntity {
         this.articleIdentifier = articleIdentifier;
     }
 
+    public String getRelation() {
+        return relation;
+    }
+
+    public void setRelation(String relation) {
+        this.relation = relation;
+    }
 }
