@@ -77,7 +77,7 @@ public class OaiDataProviderService {
     public String addRule(String url)
     {
 //        String rule = "?metadataPrefix=oai_dc&verb=ListRecords";
-        String rule = "?from=2018-01-07&until=2018-01-08&metadataPrefix=oai_dc&verb=ListRecords";
+        String rule = "?from=2017-01-01&until=2017-01-02&metadataPrefix=oai_dc&verb=ListRecords";
         return url+rule;
     }
 

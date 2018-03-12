@@ -122,4 +122,13 @@ public class Article extends AbstractAuditingEntity {
     public void setBase64(String base64) {
         this.base64 = base64;
     }
+
+    public String getArticleIdentifier() {
+        return articleIdentifier;
+    }
+
+    public void setArticleIdentifier(String articleIdentifier) {
+        this.articleIdentifier = articleIdentifier;
+    }
+
 }

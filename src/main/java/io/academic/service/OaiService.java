@@ -16,6 +16,7 @@ import eu.luminis.elastic.index.IndexService;
 import eu.luminis.elastic.search.SearchService;
 import io.academic.dao.DcDao;
 import io.academic.entity.*;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.search.*;
@@ -39,7 +40,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -141,6 +148,8 @@ public class OaiService {
             article.setDate(parts[5].split("::")[1]);
             article.setType(parts[6].split("::")[1]);
             article.setDc(parsedDc.getDc());
+            article.setArticleIdentifier(parseIdentifier(oaiRecord.getIdentifier()));
+            article.setBase64(UrlPdftoBase64("http://dergipark.gov.tr/download/article-file/"+parseIdentifier(oaiRecord.getIdentifier())));
             articles.add(article);
 
             elasticSave(article);
@@ -167,6 +176,58 @@ public class OaiService {
         }
     }
 
+    public String UrlPdftoBase64(String url) {
+        URL oracle = null;
+        String base64 = null;
+        try {
+            oracle = new URL(url);
+            URLConnection yc = oracle.openConnection();
+//            BufferedReader in = new BufferedReader(new InputStreamReader(
+//                    yc.getInputStream()));
+            BufferedInputStream bis = new BufferedInputStream(yc.getInputStream());
+//            String inputLine;
+//            while ((inputLine = in.readLine()) != null)
+//                System.out.println(inputLine);
+//            in.close();
+
+            byte bytes[] = IOUtils.toByteArray(bis);
+            bis.close();
+             base64 = Base64.getEncoder().encodeToString(bytes);
+            System.out.println(url);
+            System.out.println(base64);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+        return base64;
+
+//            String inputLine;
+//            while ((inputLine = in.readLine()) != null)
+//                System.out.println(inputLine);
+//            in.close();
+
+
+
+
+//            BufferedReader in = new BufferedReader(
+//                    new InputStreamReader(oracle.openStream()));
+//            byte bytes[] = IOUtils.toByteArray(oracle);
+
+
+//            String b64String = Base64.
+
+//            String inputLine;
+//            while ((inputLine = in.readLine()) != null)
+//                System.out.println(inputLine);
+//            in.close();
+
+    }
+
     private LocalDateTime parseDateTime(String string) {
         LocalDateTime ldt;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd['T'HH:mm:ss'Z']");
@@ -180,6 +241,13 @@ public class OaiService {
         }
         return ldt;
 //        return LocalDateTime.parse(string, formatter);
+    }
+
+    private String parseIdentifier(String oaiId){
+        String Id="";
+        Id = oaiId.substring(oaiId.lastIndexOf(':') + 1); // split identifier with ":" and take last part
+        Id = Id.substring(Id.lastIndexOf('/') + 1); // split identifier with "/" and take last part
+        return Id;
     }
 
 
