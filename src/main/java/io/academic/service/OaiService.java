@@ -90,18 +90,7 @@ public class OaiService {
     public static final String INDEX = "harvester";
     private static final String TYPE = "oai";
 
-//    private  DocumentService documentService = null;
-//    private  IndexService indexService = null;
-//    private  SearchService searchService = null;
-//    private IndexRequest request;
 
-//    @Autowired
-//    public OaiService(DocumentService documentService, IndexService indexService, SearchService searchService) {
-//        this.documentService = documentService;
-//        this.indexService = indexService;
-////        indexService.createIndex();
-//        this.searchService = searchService;
-//    }
     @Autowired
     public OaiService()
     {
@@ -109,48 +98,22 @@ public class OaiService {
     }
 
     public void elasticSave(Article article) throws IOException {
-//        System.out.println("inside elasticsave");
-
-//        IndexRequest request = new IndexRequest(INDEX, TYPE).setEntity(article);
-//        System.out.println("before article get Article Identifier");
-//        System.out.println(article.getArticleIdentifier());
-//        if (article.getArticleIdentifier() != null) {
-//            request.setId(String.valueOf(article.getId()));
-//            System.out.println("inside article getid");
         IndexRequest request = new IndexRequest(INDEX,TYPE);
         request.setPipeline("academic-pdf");
-//            System.out.println(new Gson().toJson(article));
-            request.source(new Gson().toJson(article), XContentType.JSON);
+        // before using this pipeline we have to add pipeline to the elasticsearch by following command
+//        PUT _ingest/pipeline/academic-pdf
+//        {
+//            "description": "parse pdfs and index into ES",
+//                "processors" :
+//                  [
+//                      { "attachment" : { "field": "pdf" } },
+//                      { "remove" : { "field": "pdf" } }
+//                  ]
 //        }
 
-
-
+            request.source(new Gson().toJson(article), XContentType.JSON);
             IndexResponse indexResponse = restClient.index(request);
 
-//        String index = indexResponse.getIndex();
-//        String type = indexResponse.getType();
-//        String id = indexResponse.getId();
-//        long version = indexResponse.getVersion();
-//        System.out.println(index+" ,"+type+", "+id+", "+version);
-//        if (indexResponse.getResult() == DocWriteResponse.Result.CREATED) {
-//
-//        } else if (indexResponse.getResult() == DocWriteResponse.Result.UPDATED) {
-//
-//        }
-//        ReplicationResponse.ShardInfo shardInfo = indexResponse.getShardInfo();
-//        if (shardInfo.getTotal() != shardInfo.getSuccessful()) {
-//
-//        }
-//        if (shardInfo.getFailed() > 0) {
-//            for (ReplicationResponse.ShardInfo.Failure failure : shardInfo.getFailures()) {
-//                String reason = failure.reason();
-//            }
-//        }
-
-
-
-
-//        return documentService.index(request);
     }
 
 
@@ -179,11 +142,9 @@ public class OaiService {
             oaiRecord.setState(0);
             oaiRecords.add(oaiRecord);
 
+            //TODO: we ave to check all the parts name and assigned according to related name not order
             String[] parts = parsedDc.getDc().split(";;");
             Article article = new Article();
-//            System.out.println("article create sonrasi article id : "+article.getId());
-//            System.out.println("article create sonrasi oai id : "+oaiRecord.getId());
-
             article.setTitle(parts[0].split("::")[1]);
             article.setAuthors(parts[1].split("::")[1]);
             article.setKeywords(parts[2].split("::")[1]);
@@ -195,23 +156,18 @@ public class OaiService {
             {
                 String downlaodUrl = parts[10].split("::")[1];
                 article.setRelation(downlaodUrl);
-//                article.setBase64("not available");
                 article.setBase64(UrlPdftoBase64(downlaodUrl));
             }
             else
             {
                 article.setRelation("not available");
-                article.setBase64("bm90IGF2YWlsYWJsZQ==");
+                article.setBase64("bm90IGF2YWlsYWJsZQ=="); //it means not available in base 64
             }
             article.setDc(parsedDc.getDc());
             article.setArticleIdentifier(parseIdentifier(oaiRecord.getIdentifier()));
-//            article.setArticleIdentifier(oaiRecord.getIdentifier());
 
-//            System.out.println("article add oncesi article id : "+article.getId());
             articles.add(article);
 
-//            System.out.println("elastic save oncesi article id : "+article.getId());
-//            System.out.println("elastic save oncesi article title : "+article.getTitle());
             try {
                 elasticSave(article);
             } catch (IOException e) {
@@ -247,13 +203,8 @@ public class OaiService {
         try {
             oracle = new URL(url);
             URLConnection yc = oracle.openConnection();
-//            BufferedReader in = new BufferedReader(new InputStreamReader(
-//                    yc.getInputStream()));
+
             BufferedInputStream bis = new BufferedInputStream(yc.getInputStream());
-//            String inputLine;
-//            while ((inputLine = in.readLine()) != null)
-//                System.out.println(inputLine);
-//            in.close();
 
             byte bytes[] = IOUtils.toByteArray(bis);
             bis.close();
@@ -266,30 +217,7 @@ public class OaiService {
             e.printStackTrace();
         }
 
-
-
-
         return base64;
-
-//            String inputLine;
-//            while ((inputLine = in.readLine()) != null)
-//                System.out.println(inputLine);
-//            in.close();
-
-
-
-
-//            BufferedReader in = new BufferedReader(
-//                    new InputStreamReader(oracle.openStream()));
-//            byte bytes[] = IOUtils.toByteArray(oracle);
-
-
-//            String b64String = Base64.
-
-//            String inputLine;
-//            while ((inputLine = in.readLine()) != null)
-//                System.out.println(inputLine);
-//            in.close();
 
     }
 

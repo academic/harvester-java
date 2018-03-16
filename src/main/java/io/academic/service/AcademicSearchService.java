@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.elasticsearch.action.search.*;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.Scroll;
 import org.elasticsearch.search.SearchHit;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 
@@ -30,8 +33,11 @@ public class AcademicSearchService {
 
     public String search(String q) throws IOException {
 
+        ArrayList<String> criterias = new ArrayList<String>();
+        criterias.add("dc");
+        criterias.add("content");
         SearchRequest searchRequest = new SearchRequest("harvester");
-        searchRequest.source(buildSource("term","dc",q,false));
+        searchRequest.source(buildSource("term",criterias,q,false));
 
         //this values are necessary if we need scrollable results (in other words if our result have more than 10 hits)
         final Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1));
@@ -47,8 +53,10 @@ public class AcademicSearchService {
 
     public String searchBy(String q, String criteria) throws IOException {
 
+        ArrayList<String> criterias = new ArrayList<String>();
+        criterias.add(criteria);
         SearchRequest searchRequest = new SearchRequest("harvester");
-        searchRequest.source(buildSource("match",criteria,q,false));
+        searchRequest.source(buildSource("match",criterias,q,false));
 
         //this values are necessary if we need scrollable results (in other words if our result have more than 10 hits)
         final Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1));
@@ -66,8 +74,10 @@ public class AcademicSearchService {
 
     public String getAll() throws IOException {
 
+        ArrayList<String> criterias = new ArrayList<String>();
+        criterias.add("");
         SearchRequest searchRequest = new SearchRequest("harvester");
-        searchRequest.source(buildSource("matchAll","","",true));
+        searchRequest.source(buildSource("matchAll",criterias,"",true));
 
         //this values are necessary if we need scrollable results (in other words if our result have more than 10 hits)
         final Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1));
@@ -128,16 +138,16 @@ public class AcademicSearchService {
 
 
 
-    public SearchSourceBuilder buildSource(String queryType, String criteria, String q, Boolean showAllFields){
+    public SearchSourceBuilder buildSource(String queryType, ArrayList<String> criteria, String q, Boolean showAllFields){
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
         if (queryType.equals("match"))
         {
-            searchSourceBuilder.query(matchQuery(criteria,q));
+            searchSourceBuilder.query(QueryBuilders.matchQuery(criteria.get(0),q));
         }
         else if (queryType.equals("term"))
         {
-            searchSourceBuilder.query(QueryBuilders.termQuery(criteria,q));
+            searchSourceBuilder.query(QueryBuilders.multiMatchQuery(q,criteria.toArray(new String[criteria.size()])));
         }
         else
         {
@@ -147,7 +157,8 @@ public class AcademicSearchService {
         searchSourceBuilder.sort(new FieldSortBuilder("title.keyword").order(SortOrder.DESC));
         if (!showAllFields)
         {
-            String[] includeFields = new String[] {"title",criteria};
+            criteria.add("title");
+            String[] includeFields = criteria.toArray(new String[criteria.size()]);
             String[] excludeFields = new String[] {""};
             searchSourceBuilder.fetchSource(includeFields,excludeFields);
             searchSourceBuilder.fetchSource(true);
