@@ -316,11 +316,19 @@ public class OaiService {
     }
 
 
-    public void delete() throws IOException {
+    public void delete() {
 
-        //TODO:check if there is any indices with that name
-        DeleteIndexRequest request = new DeleteIndexRequest("harvester");
-        restClient.indices().deleteIndex(request);
+        try {
+            DeleteIndexRequest request = new DeleteIndexRequest("harvester");
+            restClient.indices().deleteIndex(request);
+        } catch (ElasticsearchException exception) {
+            if (exception.status() == RestStatus.NOT_FOUND) {
+                System.out.println("Index not found and not deleted");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
     }
 

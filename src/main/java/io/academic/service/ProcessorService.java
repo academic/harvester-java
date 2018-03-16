@@ -37,11 +37,9 @@ public class ProcessorService {
 
         oaiDataProviderService.queue(new OaiDataProvider("Acta Medica Anatolia","http://dergipark.gov.tr/api/public/oai/","http://dergipark.gov.tr/download/article-file/","dergipark.ulakbim.gov.tr"  ));
 //        oaiDataProviderService.queue(new OaiDataProvider("http://export.arxiv.org/oai2","https://arxiv.org/pdf/"));
-        try {
+
             oaiService.delete();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
 
     }
 
