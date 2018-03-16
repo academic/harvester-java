@@ -9,12 +9,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-//import eu.luminis.elastic.document.DocumentService;
-//import eu.luminis.elastic.document.IndexRequest;
-//import eu.luminis.elastic.document.UpdateRequest;
-//import eu.luminis.elastic.index.IndexService;
-//import eu.luminis.elastic.search.SearchService;
-//import eu.luminis.elastic.document.response.IndexResponse;
 import io.academic.dao.DcDao;
 import io.academic.entity.*;
 import org.apache.commons.io.IOUtils;
@@ -115,7 +109,7 @@ public class OaiService {
     }
 
     public void elasticSave(Article article) throws IOException {
-        System.out.println("inside elasticsave");
+//        System.out.println("inside elasticsave");
 
 //        IndexRequest request = new IndexRequest(INDEX, TYPE).setEntity(article);
 //        System.out.println("before article get Article Identifier");
@@ -124,7 +118,7 @@ public class OaiService {
 //            request.setId(String.valueOf(article.getId()));
 //            System.out.println("inside article getid");
         IndexRequest request = new IndexRequest(INDEX,TYPE);
-//        request.setPipeline("academic-pdf");
+        request.setPipeline("academic-pdf");
 //            System.out.println(new Gson().toJson(article));
             request.source(new Gson().toJson(article), XContentType.JSON);
 //        }
@@ -207,7 +201,7 @@ public class OaiService {
             else
             {
                 article.setRelation("not available");
-                article.setBase64("not available");
+                article.setBase64("bm90IGF2YWlsYWJsZQ==");
             }
             article.setDc(parsedDc.getDc());
             article.setArticleIdentifier(parseIdentifier(oaiRecord.getIdentifier()));
@@ -216,7 +210,7 @@ public class OaiService {
 //            System.out.println("article add oncesi article id : "+article.getId());
             articles.add(article);
 
-            System.out.println("elastic save oncesi article id : "+article.getId());
+//            System.out.println("elastic save oncesi article id : "+article.getId());
 //            System.out.println("elastic save oncesi article title : "+article.getTitle());
             try {
                 elasticSave(article);
@@ -248,7 +242,7 @@ public class OaiService {
 
     public String UrlPdftoBase64(String url) {
         URL oracle = null;
-        String base64 = null;
+        String base64 = "bm90IGF2YWlsYWJsZQ=="; //means not available
         System.out.println(url);
         try {
             oracle = new URL(url);
