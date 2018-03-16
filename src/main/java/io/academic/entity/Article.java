@@ -11,6 +11,10 @@ import javax.persistence.Table;
 @Entity
 public class Article extends AbstractAuditingEntity {
 
+    public Article(){
+
+    }
+
     @Column
     @Type(type = "text")
     private String title;

@@ -9,21 +9,29 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import eu.luminis.elastic.document.DocumentService;
-import eu.luminis.elastic.document.IndexRequest;
-import eu.luminis.elastic.document.UpdateRequest;
-import eu.luminis.elastic.index.IndexService;
-import eu.luminis.elastic.search.SearchService;
+//import eu.luminis.elastic.document.DocumentService;
+//import eu.luminis.elastic.document.IndexRequest;
+//import eu.luminis.elastic.document.UpdateRequest;
+//import eu.luminis.elastic.index.IndexService;
+//import eu.luminis.elastic.search.SearchService;
+//import eu.luminis.elastic.document.response.IndexResponse;
 import io.academic.dao.DcDao;
 import io.academic.entity.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.*;
+import org.elasticsearch.action.support.replication.ReplicationResponse;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.Scroll;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -88,28 +96,67 @@ public class OaiService {
     public static final String INDEX = "harvester";
     private static final String TYPE = "oai";
 
-    private  DocumentService documentService = null;
-    private  IndexService indexService = null;
-    private  SearchService searchService = null;
-    private IndexRequest request;
+//    private  DocumentService documentService = null;
+//    private  IndexService indexService = null;
+//    private  SearchService searchService = null;
+//    private IndexRequest request;
 
+//    @Autowired
+//    public OaiService(DocumentService documentService, IndexService indexService, SearchService searchService) {
+//        this.documentService = documentService;
+//        this.indexService = indexService;
+////        indexService.createIndex();
+//        this.searchService = searchService;
+//    }
     @Autowired
-    public OaiService(DocumentService documentService, IndexService indexService, SearchService searchService) {
-        this.documentService = documentService;
-        this.indexService = indexService;
-//        indexService.createIndex();
-        this.searchService = searchService;
+    public OaiService()
+    {
+
     }
 
-    public String elasticSave(Article article) {
-        IndexRequest request = new IndexRequest(INDEX, TYPE).setEntity(article);
+    public void elasticSave(Article article) throws IOException {
+        System.out.println("inside elasticsave");
+
+//        IndexRequest request = new IndexRequest(INDEX, TYPE).setEntity(article);
+//        System.out.println("before article get Article Identifier");
+//        System.out.println(article.getArticleIdentifier());
+//        if (article.getArticleIdentifier() != null) {
+//            request.setId(String.valueOf(article.getId()));
+//            System.out.println("inside article getid");
+        IndexRequest request = new IndexRequest(INDEX,TYPE);
+//        request.setPipeline("academic-pdf");
+//            System.out.println(new Gson().toJson(article));
+            request.source(new Gson().toJson(article), XContentType.JSON);
+//        }
 
 
-        if (article.getId() != null) {
-            request.setId(String.valueOf(article.getId()));
-        }
 
-        return documentService.index(request);
+            IndexResponse indexResponse = restClient.index(request);
+
+//        String index = indexResponse.getIndex();
+//        String type = indexResponse.getType();
+//        String id = indexResponse.getId();
+//        long version = indexResponse.getVersion();
+//        System.out.println(index+" ,"+type+", "+id+", "+version);
+//        if (indexResponse.getResult() == DocWriteResponse.Result.CREATED) {
+//
+//        } else if (indexResponse.getResult() == DocWriteResponse.Result.UPDATED) {
+//
+//        }
+//        ReplicationResponse.ShardInfo shardInfo = indexResponse.getShardInfo();
+//        if (shardInfo.getTotal() != shardInfo.getSuccessful()) {
+//
+//        }
+//        if (shardInfo.getFailed() > 0) {
+//            for (ReplicationResponse.ShardInfo.Failure failure : shardInfo.getFailures()) {
+//                String reason = failure.reason();
+//            }
+//        }
+
+
+
+
+//        return documentService.index(request);
     }
 
 
@@ -140,6 +187,9 @@ public class OaiService {
 
             String[] parts = parsedDc.getDc().split(";;");
             Article article = new Article();
+//            System.out.println("article create sonrasi article id : "+article.getId());
+//            System.out.println("article create sonrasi oai id : "+oaiRecord.getId());
+
             article.setTitle(parts[0].split("::")[1]);
             article.setAuthors(parts[1].split("::")[1]);
             article.setKeywords(parts[2].split("::")[1]);
@@ -151,14 +201,28 @@ public class OaiService {
             {
                 String downlaodUrl = parts[10].split("::")[1];
                 article.setRelation(downlaodUrl);
+//                article.setBase64("not available");
                 article.setBase64(UrlPdftoBase64(downlaodUrl));
+            }
+            else
+            {
+                article.setRelation("not available");
+                article.setBase64("not available");
             }
             article.setDc(parsedDc.getDc());
             article.setArticleIdentifier(parseIdentifier(oaiRecord.getIdentifier()));
+//            article.setArticleIdentifier(oaiRecord.getIdentifier());
 
+//            System.out.println("article add oncesi article id : "+article.getId());
             articles.add(article);
 
-            elasticSave(article);
+            System.out.println("elastic save oncesi article id : "+article.getId());
+//            System.out.println("elastic save oncesi article title : "+article.getTitle());
+            try {
+                elasticSave(article);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         oaiRecordRepository.save(oaiRecords);
