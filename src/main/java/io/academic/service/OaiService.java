@@ -9,20 +9,23 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import eu.luminis.elastic.document.DocumentService;
-import eu.luminis.elastic.document.IndexRequest;
-import eu.luminis.elastic.document.UpdateRequest;
-import eu.luminis.elastic.index.IndexService;
-import eu.luminis.elastic.search.SearchService;
 import io.academic.dao.DcDao;
 import io.academic.entity.*;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.*;
+import org.elasticsearch.action.support.replication.ReplicationResponse;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.Scroll;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -39,7 +42,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -81,28 +90,30 @@ public class OaiService {
     public static final String INDEX = "harvester";
     private static final String TYPE = "oai";
 
-    private  DocumentService documentService = null;
-    private  IndexService indexService = null;
-    private  SearchService searchService = null;
-    private IndexRequest request;
 
     @Autowired
-    public OaiService(DocumentService documentService, IndexService indexService, SearchService searchService) {
-        this.documentService = documentService;
-        this.indexService = indexService;
-//        indexService.createIndex();
-        this.searchService = searchService;
+    public OaiService()
+    {
+
     }
 
-    public String elasticSave(Article article) {
-        IndexRequest request = new IndexRequest(INDEX, TYPE).setEntity(article);
+    public void elasticSave(Article article) throws IOException {
+        IndexRequest request = new IndexRequest(INDEX,TYPE);
+        request.setPipeline("academic-pdf");
+        // before using this pipeline we have to add pipeline to the elasticsearch by following command
+//        PUT _ingest/pipeline/academic-pdf
+//        {
+//            "description": "parse pdfs and index into ES",
+//                "processors" :
+//                  [
+//                      { "attachment" : { "field": "pdf" } },
+//                      { "remove" : { "field": "pdf" } }
+//                  ]
+//        }
 
+            request.source(new Gson().toJson(article), XContentType.JSON);
+            IndexResponse indexResponse = restClient.index(request);
 
-        if (article.getId() != null) {
-            request.setId(String.valueOf(article.getId()));
-        }
-
-        return documentService.index(request);
     }
 
 
@@ -131,6 +142,7 @@ public class OaiService {
             oaiRecord.setState(0);
             oaiRecords.add(oaiRecord);
 
+            //TODO: we ave to check all the parts name and assigned according to related name not order
             String[] parts = parsedDc.getDc().split(";;");
             Article article = new Article();
             article.setTitle(parts[0].split("::")[1]);
@@ -140,10 +152,27 @@ public class OaiService {
             article.setPublisher(parts[4].split("::")[1]);
             article.setDate(parts[5].split("::")[1]);
             article.setType(parts[6].split("::")[1]);
+            if (parts.length>10)
+            {
+                String downlaodUrl = parts[10].split("::")[1];
+                article.setRelation(downlaodUrl);
+                article.setBase64(UrlPdftoBase64(downlaodUrl));
+            }
+            else
+            {
+                article.setRelation("not available");
+                article.setBase64("bm90IGF2YWlsYWJsZQ=="); //it means not available in base 64
+            }
             article.setDc(parsedDc.getDc());
+            article.setArticleIdentifier(parseIdentifier(oaiRecord.getIdentifier()));
+
             articles.add(article);
 
-            elasticSave(article);
+            try {
+                elasticSave(article);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         oaiRecordRepository.save(oaiRecords);
@@ -167,6 +196,31 @@ public class OaiService {
         }
     }
 
+    public String UrlPdftoBase64(String url) {
+        URL oracle = null;
+        String base64 = "bm90IGF2YWlsYWJsZQ=="; //means not available
+        System.out.println(url);
+        try {
+            oracle = new URL(url);
+            URLConnection yc = oracle.openConnection();
+
+            BufferedInputStream bis = new BufferedInputStream(yc.getInputStream());
+
+            byte bytes[] = IOUtils.toByteArray(bis);
+            bis.close();
+             base64 = Base64.getEncoder().encodeToString(bytes);
+            System.out.println(url);
+            System.out.println(base64);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return base64;
+
+    }
+
     private LocalDateTime parseDateTime(String string) {
         LocalDateTime ldt;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd['T'HH:mm:ss'Z']");
@@ -182,12 +236,27 @@ public class OaiService {
 //        return LocalDateTime.parse(string, formatter);
     }
 
+    private String parseIdentifier(String oaiId){
+        String Id="";
+        Id = oaiId.substring(oaiId.lastIndexOf(':') + 1); // split identifier with ":" and take last part
+        Id = Id.substring(Id.lastIndexOf('/') + 1); // split identifier with "/" and take last part
+        return Id;
+    }
 
-    public void delete() throws IOException {
 
-        //TODO:check if there is any indices with that name
-        DeleteIndexRequest request = new DeleteIndexRequest("harvester");
-        restClient.indices().deleteIndex(request);
+    public void delete() {
+
+        try {
+            DeleteIndexRequest request = new DeleteIndexRequest("harvester");
+            restClient.indices().deleteIndex(request);
+        } catch (ElasticsearchException exception) {
+            if (exception.status() == RestStatus.NOT_FOUND) {
+                System.out.println("Index not found and not deleted");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
     }
 

@@ -11,6 +11,10 @@ import javax.persistence.Table;
 @Entity
 public class Article extends AbstractAuditingEntity {
 
+    public Article(){
+
+    }
+
     @Column
     @Type(type = "text")
     private String title;
@@ -42,6 +46,18 @@ public class Article extends AbstractAuditingEntity {
     @Column
     @Type(type = "text")
     private String type;
+
+    @Column
+    @Type(type = "text")
+    private String base64;
+
+    @Column
+    @Type(type = "text")
+    private String articleIdentifier;
+
+    @Column
+    @Type(type = "text")
+    private String relation;
 
     public String getTitle() {
         return title;
@@ -105,5 +121,29 @@ public class Article extends AbstractAuditingEntity {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getBase64() {
+        return base64;
+    }
+
+    public void setBase64(String base64) {
+        this.base64 = base64;
+    }
+
+    public String getArticleIdentifier() {
+        return articleIdentifier;
+    }
+
+    public void setArticleIdentifier(String articleIdentifier) {
+        this.articleIdentifier = articleIdentifier;
+    }
+
+    public String getRelation() {
+        return relation;
+    }
+
+    public void setRelation(String relation) {
+        this.relation = relation;
     }
 }
